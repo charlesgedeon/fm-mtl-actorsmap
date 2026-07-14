@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finance Montréal — Navigateur de l'écosystème d'adaptation</title>
+<meta name="description" content="Outil interactif pour orienter les PME dans l'écosystème québécois de l'adaptation climatique." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/8.0.4/babel.min.js" crossorigin></script>
+<style>
+  html, body { margin: 0; padding: 0; background: #F5F6FB; }
+  #root { min-height: 100vh; }
+</style>
+</head>
+<body>
+<div id="root">
+  <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Montserrat',sans-serif;color:#5B6178;">
+    Chargement… / Loading…
+  </div>
+</div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useMemo } = React;
+
+
+/* ============================================================
+   INLINE ICONS (small hand-drawn set in Lucide's stroke style,
+   replacing the lucide-react npm import for a build-free page)
+   ============================================================ */
+function IconBase({ size = 16, color = "currentColor", style, children }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      {children}
+    </svg>
+  );
+}
+function Globe(props) {
+  return (
+    <IconBase {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </IconBase>
+  );
+}
+function X(props) {
+  return (
+    <IconBase {...props}>
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </IconBase>
+  );
+}
+function ExternalLink(props) {
+  return (
+    <IconBase {...props}>
+      <path d="M15 3h6v6" />
+      <line x1="10" y1="14" x2="21" y2="3" />
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    </IconBase>
+  );
+}
+function ChevronDown(props) {
+  return (
+    <IconBase {...props}>
+      <polyline points="6 9 12 15 18 9" />
+    </IconBase>
+  );
+}
+function Search(props) {
+  return (
+    <IconBase {...props}>
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </IconBase>
+  );
+}
+function Compass(props) {
+  return (
+    <IconBase {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+    </IconBase>
+  );
+}
+function LayoutGrid(props) {
+  return (
+    <IconBase {...props}>
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+    </IconBase>
+  );
+}
+function ArrowRight(props) {
+  return (
+    <IconBase {...props}>
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </IconBase>
+  );
+}
+
+/* ============================================================
+   DESIGN TOKENS — Finance Montréal official brand palette
+   paper  #F5F6FB  — soft cool-white background (near-white, brand-neutral)
+   ink    #10132A  — near-black navy, primary text
+   forest #182CCA  — Persian Blue, FM primary brand colour
+   moss   #5762D8  — softened blue, muted tags / hairlines
+   ochre  #1424A2  — Torea Bay, FM secondary colour, used as interactive accent
+   slate  #5B6178  — secondary text
+   ============================================================ */
+
+const TOKENS = {
+  paper: "#F5F6FB",
+  paperDim: "#EDEFFA",
+  ink: "#10132A",
+  forest: "#182CCA",       // Persian Blue — FM primary
+  forestDark: "#1424A2",   // Torea Bay — FM secondary
+  moss: "#5762D8",
+  mossLight: "#E9EBFC",
+  ochre: "#1424A2",        // Torea Bay used as the interactive accent
+  ochreLight: "#DEE1F8",
+  slate: "#5B6178",
+  line: "#DFE2F1",
+};
+
+/* ============================================================
+   DATA — STAGES / ROLES
+   ============================================================ */
+
+const STAGES = [
+  { id: "risk", en: "Risk Understanding", fr: "Compréhension des risques" },
+  { id: "value", en: "Value / Opportunity Assessment", fr: "Évaluation de la valeur / des opportunités" },
+  { id: "strategy", en: "Adaptation Strategy", fr: "Stratégie d'adaptation" },
+  { id: "implementation", en: "Strategy Implementation", fr: "Mise en œuvre de la stratégie" },
+  { id: "post", en: "Post-Implementation Analysis", fr: "Analyse post-mise en œuvre" },
+];
+
+const ROLES = [
+  { id: "knowledge", en: "Knowledge & research orgs", fr: "Organismes de savoir et de recherche" },
+  { id: "advisory", en: "Technical & advisory providers", fr: "Fournisseurs techniques et conseils" },
+  { id: "financial", en: "Financial institutions", fr: "Institutions financières" },
+  { id: "government", en: "Government & public agencies", fr: "Gouvernement et organismes publics" },
+  { id: "ecosystem", en: "Ecosystem", fr: "Écosystème" },
+];
+
+/* ============================================================
+   DATA — FUNCTIONS (5 stages x 5 roles = 25 cells)
+   ============================================================ */
+
+const FUNCTIONS = [
+  // RISK
+  { stage: "risk", role: "knowledge", label: { en: "Hazard data", fr: "Données sur les aléas" },
+    desc: { en: "Provide climate and hazard knowledge and research so SMEs understand current and future climate risks to their operations before making adaptation decisions.",
+            fr: "Fournissent des connaissances et des recherches sur le climat et les aléas afin que les PME comprennent les risques climatiques actuels et futurs pesant sur leurs activités avant de prendre des décisions d'adaptation." } },
+  { stage: "risk", role: "advisory", label: { en: "Assess vulnerabilities", fr: "Évaluer les vulnérabilités" },
+    desc: { en: "Assess an SME's specific vulnerabilities and translate climate hazards into business risk.",
+            fr: "Évaluent les vulnérabilités propres à une PME et traduisent les aléas climatiques en risques d'affaires concrets." } },
+  { stage: "risk", role: "financial", label: { en: "Define risk concerns", fr: "Définir les préoccupations de risque" },
+    desc: { en: "Identify climate risks that could affect financing, insurability, asset value, repayment capacity, and long-term resilience.",
+            fr: "Repèrent les risques climatiques susceptibles d'affecter le financement, l'assurabilité, la valeur des actifs, la capacité de remboursement et la résilience à long terme." } },
+  { stage: "risk", role: "government", label: { en: "Public information", fr: "Information publique" },
+    desc: { en: "Provide public climate-risk information, hazard maps, datasets, guidance and regulations.",
+            fr: "Fournissent l'information publique sur les risques climatiques, des cartes d'aléas, des jeux de données, des guides et la réglementation." } },
+  { stage: "risk", role: "ecosystem", label: { en: "Awareness", fr: "Sensibilisation" },
+    desc: { en: "Raise awareness of climate risks and adaptation opportunities and encourage SMEs to engage with the ecosystem.",
+            fr: "Sensibilisent aux risques climatiques et aux occasions d'adaptation, et encouragent les PME à s'engager dans l'écosystème." } },
+
+  // VALUE
+  { stage: "value", role: "knowledge", label: { en: "Cost-benefit evidence", fr: "Données coûts-bénéfices" },
+    desc: { en: "Produce studies and benchmarks that quantify the business case for adaptation, including avoided losses and new market opportunities.",
+            fr: "Produisent des études et des repères qui chiffrent l'argumentaire d'affaires de l'adaptation, incluant les pertes évitées et les nouvelles occasions de marché." } },
+  { stage: "value", role: "advisory", label: { en: "Opportunity diagnostics", fr: "Diagnostics d'opportunités" },
+    desc: { en: "Run diagnostics and workshops that translate risk findings into a prioritized list of adaptation opportunities and their expected value.",
+            fr: "Réalisent des diagnostics et des ateliers qui traduisent les constats de risque en une liste priorisée d'opportunités d'adaptation et de leur valeur attendue." } },
+  { stage: "value", role: "financial", label: { en: "Value the investment case", fr: "Évaluer le dossier d'investissement" },
+    desc: { en: "Help SMEs frame adaptation spending as investment, weighing cost of inaction against financing terms and expected returns.",
+            fr: "Aident les PME à présenter les dépenses d'adaptation comme un investissement, en pesant le coût de l'inaction face aux conditions de financement et aux rendements attendus." } },
+  { stage: "value", role: "government", label: { en: "Incentive signals", fr: "Signaux incitatifs" },
+    desc: { en: "Publish programs, grants and tax measures that shift the value calculation toward earlier adaptation action.",
+            fr: "Publient des programmes, subventions et mesures fiscales qui font pencher le calcul de valeur vers une action d'adaptation plus précoce." } },
+  { stage: "value", role: "ecosystem", label: { en: "Peer benchmarking", fr: "Comparaison entre pairs" },
+    desc: { en: "Convene sector peers to share what adaptation has been worth to comparable businesses.",
+            fr: "Réunissent des pairs sectoriels pour partager la valeur que l'adaptation a représentée pour des entreprises comparables." } },
+
+  // STRATEGY
+  { stage: "strategy", role: "knowledge", label: { en: "Pathways research", fr: "Recherche sur les trajectoires" },
+    desc: { en: "Supply scenario and pathway research SMEs can draw on to shape a defensible, sector-specific adaptation strategy.",
+            fr: "Fournissent des recherches sur les scénarios et les trajectoires que les PME peuvent utiliser pour élaborer une stratégie d'adaptation défendable et propre à leur secteur." } },
+  { stage: "strategy", role: "advisory", label: { en: "Strategy design", fr: "Conception de la stratégie" },
+    desc: { en: "Co-design the adaptation strategy and roadmap, sequencing actions against risk exposure and available resources.",
+            fr: "Coconçoivent la stratégie et la feuille de route d'adaptation, en séquençant les actions selon l'exposition au risque et les ressources disponibles." } },
+  { stage: "strategy", role: "financial", label: { en: "Structure financing", fr: "Structurer le financement" },
+    desc: { en: "Structure the financing mix — loans, credit lines, insurance products — that will support the chosen strategy.",
+            fr: "Structurent le montage financier (prêts, marges de crédit, produits d'assurance) qui appuiera la stratégie retenue." } },
+  { stage: "strategy", role: "government", label: { en: "Policy alignment", fr: "Arrimage réglementaire" },
+    desc: { en: "Clarify regulatory obligations and align public programs with the SME's strategic choices.",
+            fr: "Clarifient les obligations réglementaires et arriment les programmes publics aux choix stratégiques de la PME." } },
+  { stage: "strategy", role: "ecosystem", label: { en: "Convening & partnerships", fr: "Maillage et partenariats" },
+    desc: { en: "Broker introductions and partnerships — supply chain, sector associations — that strengthen the strategy's feasibility.",
+            fr: "Facilitent des mises en relation et des partenariats (chaîne d'approvisionnement, associations sectorielles) qui renforcent la faisabilité de la stratégie." } },
+
+  // IMPLEMENTATION
+  { stage: "implementation", role: "knowledge", label: { en: "Technical standards", fr: "Normes techniques" },
+    desc: { en: "Maintain technical standards, guides and case studies that inform how adaptation measures are actually built or deployed.",
+            fr: "Maintiennent des normes techniques, guides et études de cas qui éclairent la mise en œuvre concrète des mesures d'adaptation." } },
+  { stage: "implementation", role: "advisory", label: { en: "Project delivery", fr: "Réalisation de projet" },
+    desc: { en: "Deliver the engineering, design or operational work needed to execute adaptation measures on the ground.",
+            fr: "Réalisent les travaux d'ingénierie, de conception ou d'exploitation nécessaires à l'exécution des mesures d'adaptation sur le terrain." } },
+  { stage: "implementation", role: "financial", label: { en: "Disburse capital", fr: "Décaisser le capital" },
+    desc: { en: "Disburse loans, grants or insurance proceeds and monitor use of funds through the implementation phase.",
+            fr: "Décaissent les prêts, subventions ou indemnités d'assurance et suivent l'utilisation des fonds pendant la mise en œuvre." } },
+  { stage: "implementation", role: "government", label: { en: "Permits & compliance", fr: "Permis et conformité" },
+    desc: { en: "Administer permits, inspections and compliance requirements tied to the adaptation measures being implemented.",
+            fr: "Administrent les permis, inspections et exigences de conformité liés aux mesures d'adaptation mises en œuvre." } },
+  { stage: "implementation", role: "ecosystem", label: { en: "Contractor & supplier network", fr: "Réseau d'entrepreneurs et de fournisseurs" },
+    desc: { en: "Connect SMEs to vetted contractors, suppliers and installers who can execute the work.",
+            fr: "Mettent les PME en contact avec des entrepreneurs, fournisseurs et installateurs qualifiés pour exécuter les travaux." } },
+
+  // POST
+  { stage: "post", role: "knowledge", label: { en: "Outcome research", fr: "Recherche sur les résultats" },
+    desc: { en: "Study post-implementation outcomes to refine what adaptation measures actually deliver over time.",
+            fr: "Étudient les résultats après la mise en œuvre pour préciser ce que les mesures d'adaptation livrent réellement dans le temps." } },
+  { stage: "post", role: "advisory", label: { en: "Performance review", fr: "Bilan de performance" },
+    desc: { en: "Audit and benchmark completed measures against the original risk and value case.",
+            fr: "Auditent et comparent les mesures réalisées à l'argumentaire initial de risque et de valeur." } },
+  { stage: "post", role: "financial", label: { en: "Reassess risk pricing", fr: "Réévaluer la tarification du risque" },
+    desc: { en: "Reassess financing terms, insurance pricing and asset value in light of the adaptation measures now in place.",
+            fr: "Réévaluent les conditions de financement, la tarification de l'assurance et la valeur des actifs à la lumière des mesures d'adaptation désormais en place." } },
+  { stage: "post", role: "government", label: { en: "Reporting & recognition", fr: "Reddition de comptes et reconnaissance" },
+    desc: { en: "Collect reporting for public programs and recognize completed adaptation action through certification or disclosure.",
+            fr: "Collectent la reddition de comptes pour les programmes publics et reconnaissent l'action d'adaptation réalisée par certification ou divulgation." } },
+  { stage: "post", role: "ecosystem", label: { en: "Share lessons", fr: "Partager les leçons" },
+    desc: { en: "Capture and circulate lessons learned so other SMEs in the ecosystem can adapt faster.",
+            fr: "Recueillent et diffusent les leçons apprises pour que d'autres PME de l'écosystème puissent s'adapter plus rapidement." } },
+];
+
+/* ============================================================
+   DATA — ACTORS (seed set, §9)
+   ============================================================ */
+
+const ACTORS = [
+  {
+    id: "ouranos", name: "Ouranos", role: "knowledge",
+    stages: ["risk", "value", "strategy", "post"],
+    type: { en: "Applied-research consortium", fr: "Consortium de recherche appliquée" },
+    desc: { en: "Applied-research consortium producing regional climate scenarios, sector-specific risk/opportunity tools and adaptation fact sheets for Québec's economy.",
+            fr: "Consortium de recherche appliquée qui produit des scénarios climatiques régionaux, des outils sectoriels de risque et d'opportunité, ainsi que des fiches d'adaptation pour l'économie québécoise." },
+    url: "https://www.ouranos.ca/en", languages: ["fr", "en"],
+    initiatives: [
+      {
+        name: "Portraits climatiques",
+        desc: { en: "Localized climate projections and regional adaptation sheets for Québec.", fr: "Projections climatiques localisées et fiches d'adaptation régionales pour le Québec." },
+        url: "https://www.ouranos.ca/en/climate-scenarios-and-services",
+      },
+      {
+        name: "Sector risk/opportunity matrices",
+        desc: { en: "Sector-specific tools (e.g. tourism) weighing both climate risk and opportunity.", fr: "Outils sectoriels (p. ex. tourisme) pesant à la fois le risque et l'opportunité climatiques." },
+        url: "https://www.ouranos.ca/en/projects-publications/analysis-climate-change-risks-and-opportunities-quebec-city-and-charlevoix",
+      },
+    ],
+  },
+  {
+    id: "riskthinking_ai", name: "RiskThinking.AI", role: "knowledge",
+    stages: ["risk", "implementation"],
+    type: { en: "Climate risk data & analytics firm", fr: "Firme de données et d'analytique de risque climatique" },
+    desc: { en: "Provides physical climate-risk data and analytics used to quantify hazard exposure at the asset level.",
+            fr: "Fournit des données et de l'analytique de risque climatique physique pour quantifier l'exposition aux aléas au niveau des actifs." },
+    url: "https://riskthinking.ai/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "cirano", name: "CIRANO", role: "knowledge",
+    stages: ["risk", "strategy", "implementation", "post", "value"],
+    type: { en: "Research centre", fr: "Centre de recherche" },
+    desc: { en: "Research centre studying risk perception and economic policy, including the Barometer on public risk attitudes.",
+            fr: "Centre de recherche qui étudie la perception du risque et les politiques économiques, notamment via son Baromètre sur les attitudes du public face au risque." },
+    url: "https://www.cirano.qc.ca/en/", languages: ["fr", "en"],
+    initiatives: [
+      {
+        name: "Baromètre CIRANO",
+        desc: { en: "Annual survey of public risk perception, including climate risk.", fr: "Sondage annuel sur la perception publique du risque, y compris le risque climatique." },
+        url: "https://www.cirano.qc.ca/en/",
+      },
+    ],
+  },
+  {
+    id: "ivado", name: "IVADO", role: "knowledge",
+    stages: ["risk", "post"],
+    type: { en: "AI & data-science research institute", fr: "Institut de recherche en IA et science des données" },
+    desc: { en: "Research institute applying AI and data science to complex problems, including climate risk modeling.",
+            fr: "Institut de recherche qui applique l'IA et la science des données à des problèmes complexes, y compris la modélisation du risque climatique." },
+    url: "https://ivado.ca/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "hec_montreal", name: "HEC Montréal", role: "knowledge",
+    stages: ["risk", "value"],
+    type: { en: "Business school", fr: "École de gestion" },
+    desc: { en: "Business school offering research and executive education relevant to sustainability and climate strategy.",
+            fr: "École de gestion offrant recherche et formation exécutive pertinentes à la durabilité et à la stratégie climatique." },
+    url: "https://www.hec.ca/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "esg_uqam", name: "ESG UQAM", role: "knowledge",
+    stages: ["risk"],
+    type: { en: "Knowledge & research organization", fr: "Organisme de savoir et de recherche" },
+    desc: { en: "Listed by Finance Montréal as a knowledge & research organization active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de savoir et de recherche actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "cpeq", name: "CPEQ", role: "knowledge",
+    stages: ["risk"],
+    type: { en: "Knowledge & research organization", fr: "Organisme de savoir et de recherche" },
+    desc: { en: "Listed by Finance Montréal as a knowledge & research organization active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de savoir et de recherche actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "wsp_canada", name: "WSP Canada", role: "advisory",
+    stages: ["risk"],
+    type: { en: "Global engineering & environmental consultancy", fr: "Firme mondiale de génie-conseil et d'environnement" },
+    desc: { en: "Global engineering consultancy that assesses climate vulnerabilities and designs resilience measures for infrastructure and operations.",
+            fr: "Firme mondiale de génie-conseil qui évalue les vulnérabilités climatiques et conçoit des mesures de résilience pour les infrastructures et les opérations." },
+    url: "https://www.wsp.com/en-ca/services/climate-change", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "aecom_canada", name: "AECOM Canada", role: "advisory",
+    stages: ["risk"],
+    type: { en: "Global infrastructure consultancy", fr: "Firme mondiale de conseil en infrastructure" },
+    desc: { en: "Global infrastructure and engineering consultancy supporting climate risk assessment and resilient design.",
+            fr: "Firme mondiale de génie-conseil en infrastructure qui appuie l'évaluation du risque climatique et la conception résiliente." },
+    url: "https://aecom.com/canada/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "deloitte_canada", name: "Deloitte Canada", role: "advisory",
+    stages: ["risk"],
+    type: { en: "Professional services firm", fr: "Firme de services professionnels" },
+    desc: { en: "Professional services firm advising businesses on climate risk assessment and sustainability strategy.",
+            fr: "Firme de services professionnels qui conseille les entreprises sur l'évaluation du risque climatique et la stratégie de durabilité." },
+    url: "https://www2.deloitte.com/ca/en.html", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "ey_ernst_young", name: "EY (Ernst & Young)", role: "advisory",
+    stages: ["risk", "strategy"],
+    type: { en: "Professional services firm", fr: "Firme de services professionnels" },
+    desc: { en: "Professional services firm providing climate risk, ESG and sustainable-finance advisory services.",
+            fr: "Firme de services professionnels offrant des services-conseils en risque climatique, ESG et finance durable." },
+    url: "https://www.ey.com/en_ca", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "cbcl", name: "CBCL", role: "advisory",
+    stages: ["risk"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "cima", name: "CIMA+", role: "advisory",
+    stages: ["risk"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "norda_stelo", name: "Norda Stelo", role: "advisory",
+    stages: ["risk"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "stantec", name: "Stantec", role: "advisory",
+    stages: ["risk"],
+    type: { en: "Engineering & design firm", fr: "Firme de génie et de conception" },
+    desc: { en: "Engineering and design firm assessing climate vulnerabilities for infrastructure and built assets.",
+            fr: "Firme de génie et de conception qui évalue les vulnérabilités climatiques pour les infrastructures et les actifs bâtis." },
+    url: "https://www.stantec.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "gir_global_intelligence_report", name: "GIR (Global Intelligence Report)", role: "advisory",
+    stages: ["risk"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "desjardins", name: "Desjardins", role: "financial",
+    stages: ["risk", "implementation"],
+    type: { en: "Financial cooperative group & insurer", fr: "Groupe financier coopératif et assureur" },
+    desc: { en: "Financial cooperative group and insurer offering financing, insurance and risk-related products relevant to adaptation.",
+            fr: "Groupe financier coopératif et assureur offrant des produits de financement, d'assurance et de gestion du risque pertinents à l'adaptation." },
+    url: "https://www.desjardins.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "national_bank_of_canada", name: "National Bank of Canada", role: "financial",
+    stages: ["risk"],
+    type: { en: "Chartered bank", fr: "Banque à charte" },
+    desc: { en: "Chartered bank offering commercial financing and risk-related products to SMEs.",
+            fr: "Banque à charte offrant du financement commercial et des produits liés au risque aux PME." },
+    url: "https://www.nbc.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "beneva", name: "Beneva", role: "financial",
+    stages: ["risk", "post"],
+    type: { en: "Mutual insurer", fr: "Assureur mutuel" },
+    desc: { en: "Mutual insurer offering commercial insurance products relevant to climate risk pricing and post-event recovery.",
+            fr: "Assureur mutuel offrant des produits d'assurance commerciale pertinents à la tarification du risque climatique et au rétablissement après sinistre." },
+    url: "https://www.beneva.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "intact_financial_corporation", name: "Intact Financial Corporation", role: "financial",
+    stages: ["risk"],
+    type: { en: "Property & casualty insurer", fr: "Assureur de dommages" },
+    desc: { en: "Property and casualty insurer whose underwriting increasingly reflects climate hazard exposure.",
+            fr: "Assureur de dommages dont la souscription reflète de plus en plus l'exposition aux aléas climatiques." },
+    url: "https://www.intactfc.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "cdpq", name: "CDPQ", role: "financial",
+    stages: ["risk", "implementation"],
+    type: { en: "Institutional investor", fr: "Investisseur institutionnel" },
+    desc: { en: "Institutional investor managing pension and insurance funds, with growing focus on climate risk in asset valuation.",
+            fr: "Investisseur institutionnel qui gère des fonds de retraite et d'assurance, avec une attention croissante au risque climatique dans l'évaluation des actifs." },
+    url: "https://www.cdpq.com/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "fonds_de_solidarite_ftq", name: "Fonds de solidarité FTQ", role: "financial",
+    stages: ["risk", "value", "implementation"],
+    type: { en: "Labour-sponsored investment fund", fr: "Fonds de travailleurs" },
+    desc: { en: "Labour-sponsored investment fund providing capital to Québec businesses, including climate-resilience projects.",
+            fr: "Fonds de travailleurs qui fournit du capital aux entreprises québécoises, y compris pour des projets de résilience climatique." },
+    url: "https://www.fondsftq.com/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "melccfp", name: "MELCCFP", role: "government",
+    stages: ["risk"],
+    type: { en: "Provincial ministry", fr: "Ministère provincial" },
+    desc: { en: "Ministère de l'Environnement, de la Lutte contre les changements climatiques, de la Faune et des Parcs; publishes public climate-risk information and hazard data.",
+            fr: "Ministère de l'Environnement, de la Lutte contre les changements climatiques, de la Faune et des Parcs; publie l'information publique sur les risques climatiques et les données sur les aléas." },
+    url: "https://www.quebec.ca/en/government/policies-orientations/plan-green-economy/initiatives-fight-climate-change/adapting-climate-change", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "centre_d_expertise_hydrique_du_quebec_ce", name: "Centre d'expertise hydrique du Québec (CEHQ)", role: "government",
+    stages: ["risk"],
+    type: { en: "Provincial hydrology expertise centre", fr: "Centre d'expertise en hydrologie provincial" },
+    desc: { en: "Provincial centre providing hydrological and flood-hazard data used in climate-risk assessment.",
+            fr: "Centre provincial qui fournit des données hydrologiques et sur les risques d'inondation utilisées dans l'évaluation du risque climatique." },
+    url: "https://www.cehq.gouv.qc.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "donnees_quebec", name: "Données Québec", role: "government",
+    stages: ["risk"],
+    type: { en: "Open-data platform", fr: "Plateforme de données ouvertes" },
+    desc: { en: "Québec's open-data platform, hosting public datasets relevant to climate hazards and risk.",
+            fr: "Plateforme de données ouvertes du Québec, qui héberge des jeux de données publics pertinents aux aléas et au risque climatiques." },
+    url: "https://www.donneesquebec.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "municipal_climate_offices_ville_de_montr", name: "Municipal Climate Offices (Ville de Montréal Climate Plan, Ville de Québec Climate Adaptation)", role: "government",
+    stages: ["risk"],
+    type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
+    desc: { en: "Listed by Finance Montréal as a government / public agency active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "public_safety_canada_natural_hazards_res", name: "Public Safety Canada - Natural Hazards & Resilience", role: "government",
+    stages: ["risk"],
+    type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
+    desc: { en: "Listed by Finance Montréal as a government / public agency active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "ministere_de_la_securite_publique_du_que", name: "Ministère de la Sécurité publique du Québec", role: "government",
+    stages: ["risk"],
+    type: { en: "Provincial ministry", fr: "Ministère provincial" },
+    desc: { en: "Provincial ministry providing public safety and emergency-preparedness information relevant to climate hazards.",
+            fr: "Ministère provincial qui fournit de l'information sur la sécurité publique et la préparation aux urgences liées aux aléas climatiques." },
+    url: "https://www.quebec.ca/gouvernement/ministere/securite-publique", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "finance_montreal", name: "Finance Montréal", role: "ecosystem",
+    stages: ["risk", "value"],
+    type: { en: "Industry cluster / convener", fr: "Grappe industrielle / rassembleur" },
+    desc: { en: "Convener of Montréal's financial sector and host of a sustainable-finance learning network and masterclasses for SME practitioners.",
+            fr: "Rassembleur du secteur financier montréalais et hôte d'un réseau d'apprentissage et de classes de maître en finance durable pour les praticiens des PME." },
+    url: "https://www.finance-montreal.com/en/sustainable-finance-initiatives-and-overview", languages: ["fr", "en"],
+    initiatives: [
+      {
+        name: "Sustainable Finance and Climate Action Education Network",
+        desc: { en: "Masterclasses and an SME community of practice on climate risk, ESG and sustainable finance.", fr: "Classes de maître et communauté de pratique pour PME sur le risque climatique, les enjeux ESG et la finance durable." },
+        url: "https://www.finance-montreal.com/en/education-network-for-quebec-smes",
+      },
+    ],
+  },
+  {
+    id: "nada_conseil", name: "Nada Conseil", role: "ecosystem",
+    stages: ["risk"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "masse_critique", name: "Masse Critique", role: "ecosystem",
+    stages: ["risk"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "i_m_p_a_c_t", name: "I.M.P.A.C.T.", role: "ecosystem",
+    stages: ["risk"],
+    type: { en: "Industry-led climate action coalition", fr: "Coalition industrielle pour l'action climatique" },
+    desc: { en: "Delivers the \"IMPACT 101\" education modules and a GHG-inventory-and-coaching program on climate risk and decarbonization for businesses.",
+            fr: "Offre les modules éducatifs « IMPACT 101 » ainsi qu'un programme de bilan GES et de coaching sur le risque climatique et la décarbonation pour les entreprises." },
+    url: "https://www.impact.quebec/", languages: ["fr", "en"],
+    initiatives: [
+      {
+        name: "IMPACT 101",
+        desc: { en: "Modular education series covering climate risk, ESG, emissions measurement and decarbonization pathways.", fr: "Série éducative modulaire couvrant le risque climatique, les enjeux ESG, la mesure des émissions et les trajectoires de décarbonation." },
+        url: "https://www.impact.quebec/activites/",
+      },
+      {
+        name: "Bilan et coaching IMPACT",
+        desc: { en: "GHG inventory plus 7.5 hours of expert coaching to launch decarbonization projects.", fr: "Bilan GES combiné à 7,5 heures de coaching expert pour lancer des projets de décarbonation." },
+        url: "https://www.impact.quebec/bilan-coaching/",
+      },
+    ],
+  },
+  {
+    id: "ecotech_quebec", name: "Écotech Québec", role: "ecosystem",
+    stages: ["risk", "strategy"],
+    type: { en: "Cleantech industry cluster", fr: "Grappe industrielle des technologies propres" },
+    desc: { en: "Québec's cleantech cluster; runs the GPSclimat platform and INNO+ program connecting SMEs to clean-technology providers and financing.",
+            fr: "Grappe des technologies propres du Québec; exploite la plateforme GPSclimat et le programme INNO+ mettant les PME en contact avec des fournisseurs de technologies propres et du financement." },
+    url: "https://www.ecotechquebec.com/", languages: ["fr", "en"],
+    initiatives: [
+      {
+        name: "GPSclimat",
+        desc: { en: "Decision-support platform matching organizations to clean-technology solutions and financing.", fr: "Plateforme d'aide à la décision qui associe les organisations à des solutions technologiques propres et à du financement." },
+        url: "https://www.ecotechquebec.com/gpsclimat/",
+      },
+      {
+        name: "INNO+",
+        desc: { en: "Guided research and matchmaking process to select and finance the right clean-technology solution.", fr: "Processus guidé de recherche et de maillage pour sélectionner et financer la bonne solution technologique propre." },
+        url: "https://www.ecotechquebec.com/inno-plus/",
+      },
+    ],
+  },
+  {
+    id: "partenariat_climat_montreal", name: "Partenariat Climat Montréal", role: "ecosystem",
+    stages: ["risk"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "conseil_patronal_de_l_environnement_du_q", name: "Conseil Patronal de l'Environnement du Québec (CPEQ)", role: "ecosystem",
+    stages: ["risk"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "chambres_de_commerce_fccq_ccmm_regional_", name: "Chambres de commerce (FCCQ, CCMM, regional chambers)", role: "ecosystem",
+    stages: ["risk"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "climatedata_ca", name: "ClimateData.ca", role: "knowledge",
+    stages: ["value", "strategy", "implementation"],
+    type: { en: "Climate data portal", fr: "Portail de données climatiques" },
+    desc: { en: "Public portal providing downscaled climate projections and indicators used across the adaptation cycle.",
+            fr: "Portail public offrant des projections climatiques régionalisées et des indicateurs utilisés tout au long du cycle d'adaptation." },
+    url: "https://climatedata.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "quebec_net_positif_qnp", name: "Québec Net Positif (QNP)", role: "knowledge",
+    stages: ["value", "strategy"],
+    type: { en: "Non-profit think tank", fr: "Think tank à but non lucratif" },
+    desc: { en: "Offers a free 10-minute climate-maturity diagnostic (\"Baro-éclair\") that benchmarks a company against peers and generates a transition index and workshop recommendations.",
+            fr: "Offre un diagnostic gratuit de maturité climatique de 10 minutes (le « Baro-éclair ») qui compare l'entreprise à ses pairs et génère un indice de transition ainsi que des recommandations d'ateliers." },
+    url: "https://www.qnp.ca/en/", languages: ["fr", "en"],
+    initiatives: [
+      {
+        name: "Baro-éclair / Flash Barometer",
+        desc: { en: "Free 10-minute diagnostic benchmarking a company's climate maturity and generating a transition index.", fr: "Diagnostic gratuit de 10 minutes qui compare la maturité climatique d'une entreprise et génère un indice de transition." },
+        url: "https://www.qnp.ca/en/services/trainings-2/",
+      },
+      {
+        name: "Board governance sessions (with CCLI & Desjardins Capital)",
+        desc: { en: "Free sessions helping SME boards understand fiduciary obligations on climate change.", fr: "Séances gratuites aidant les conseils d'administration des PME à comprendre leurs obligations fiduciaires en matière climatique." },
+        url: "https://ccli.ubc.ca/qnp-ccli-partnership-free-presentations-smes-boards-directors/",
+      },
+    ],
+  },
+  {
+    id: "ellio", name: "Ellio", role: "advisory",
+    stages: ["value"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "https://ellio.com/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "dunsky_energie_climat", name: "Dunsky Énergie + Climat", role: "advisory",
+    stages: ["value", "strategy"],
+    type: { en: "Energy & climate advisory firm", fr: "Firme-conseil en énergie et climat" },
+    desc: { en: "Advisory firm helping organizations frame the value case for energy and climate action and design adaptation strategy.",
+            fr: "Firme-conseil qui aide les organisations à évaluer la valeur des actions énergétiques et climatiques et à concevoir une stratégie d'adaptation." },
+    url: "https://www.dunsky.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "altergaia", name: "AlterGaïa", role: "advisory",
+    stages: ["value"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "mnp_esg_sustainability", name: "MNP ESG & Sustainability", role: "advisory",
+    stages: ["value"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "credo_impact", name: "Credo Impact", role: "advisory",
+    stages: ["value"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "excellence_industrielle", name: "Excellence Industrielle", role: "advisory",
+    stages: ["value"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "bdc_business_development_bank_of_canada", name: "BDC (Business Development Bank of Canada)", role: "financial",
+    stages: ["value", "implementation"],
+    type: { en: "Federal development bank", fr: "Banque de développement fédérale" },
+    desc: { en: "Federal development bank offering financing and advisory services; its own research found most SMEs have yet to prioritize climate adaptation despite rising exposure.",
+            fr: "Banque de développement fédérale offrant financement et services-conseils; ses propres recherches montrent que la plupart des PME n'ont pas encore priorisé l'adaptation climatique malgré une exposition croissante." },
+    url: "https://www.bdc.ca/", languages: ["fr", "en"],
+    initiatives: [
+      {
+        name: "BDC climate risk study",
+        desc: { en: "Study finding only 12% of surveyed SMEs have prioritized climate adaptation, and one-third would welcome funding to act.", fr: "Étude révélant que seulement 12 % des PME sondées ont priorisé l'adaptation climatique, et qu'un tiers accueillerait favorablement du financement pour agir." },
+        url: "https://www.bdc.ca/en/about/mediaroom/news-releases/how-canadas-small-and-medium-sized-businesses-can-better-prepare-fires-floods-and-heatwaves-bdc-study",
+      },
+    ],
+  },
+  {
+    id: "investissement_quebec_iq", name: "Investissement Québec (IQ)", role: "financial",
+    stages: ["value", "strategy", "implementation"],
+    type: { en: "Public financial institution", fr: "Institution financière publique" },
+    desc: { en: "Public financing arm supporting Québec SMEs through the value, strategy and implementation phases of adaptation projects.",
+            fr: "Bras de financement public qui soutient les PME québécoises dans les phases de valeur, de stratégie et de mise en œuvre des projets d'adaptation." },
+    url: "https://www.investquebec.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "fonds_d_action_quebecois_pour_le_develop", name: "Fonds d'action québécois pour le développement durable (FAQDD)", role: "financial",
+    stages: ["value"],
+    type: { en: "Non-profit sustainable-development fund", fr: "Fonds à but non lucratif pour le développement durable" },
+    desc: { en: "Non-profit fund that administers provincial environmental funding programs, including Fonds Écoleader, for Québec organizations.",
+            fr: "Fonds à but non lucratif qui administre des programmes provinciaux de financement environnemental, dont le Fonds Écoleader, pour les organisations québécoises." },
+    url: "https://faqdd.qc.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "fonds_climat_du_grand_montreal", name: "Fonds Climat du Grand Montréal", role: "financial",
+    stages: ["value", "strategy"],
+    type: { en: "Regional climate investment fund", fr: "Fonds d'investissement climatique régional" },
+    desc: { en: "Regional fund financing greater-Montréal projects that reduce emissions and build climate resilience.",
+            fr: "Fonds régional qui finance des projets dans le Grand Montréal réduisant les émissions et renforçant la résilience climatique." },
+    url: "https://fondsclimatmtl.com/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "export_development_canada_edc", name: "Export Development Canada (EDC)", role: "financial",
+    stages: ["value", "strategy"],
+    type: { en: "Federal export credit agency", fr: "Agence fédérale de crédit à l'exportation" },
+    desc: { en: "Federal Crown corporation providing financing and insurance to exporting businesses, including climate-resilience-related investments.",
+            fr: "Société d'État fédérale offrant financement et assurance aux entreprises exportatrices, y compris des investissements liés à la résilience climatique." },
+    url: "https://www.edc.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "fondation_trottier", name: "Fondation Trottier", role: "financial",
+    stages: ["value"],
+    type: { en: "Financial institution", fr: "Institution financière" },
+    desc: { en: "Listed by Finance Montréal as a financial institution active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme institution financière actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "fondaction", name: "Fondaction", role: "financial",
+    stages: ["value"],
+    type: { en: "Labour-sponsored investment fund", fr: "Fonds de travailleurs" },
+    desc: { en: "Labour-sponsored investment fund financing Québec SMEs with a sustainable-development mandate.",
+            fr: "Fonds de travailleurs qui finance les PME québécoises avec un mandat de développement durable." },
+    url: "https://fondaction.com/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "cycle_capital", name: "Cycle Capital", role: "financial",
+    stages: ["value"],
+    type: { en: "Cleantech venture capital fund", fr: "Fonds de capital de risque en technologies propres" },
+    desc: { en: "Venture capital fund investing in cleantech and decarbonization companies, including climate-resilience technologies.",
+            fr: "Fonds de capital de risque qui investit dans les technologies propres et la décarbonation, y compris les technologies de résilience climatique." },
+    url: "https://www.cyclecapital.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "rbcx", name: "RBCx", role: "financial",
+    stages: ["value"],
+    type: { en: "Bank-affiliated venture financing arm", fr: "Bras de financement de capital-risque affilié à une banque" },
+    desc: { en: "RBC's venture financing arm, providing capital to growth companies including cleantech and climate ventures.",
+            fr: "Bras de financement de capital-risque de RBC, qui fournit du capital à des entreprises en croissance, y compris en technologies propres et climatiques." },
+    url: "https://www.rbcx.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "banque_laurentienne", name: "Banque Laurentienne", role: "financial",
+    stages: ["value"],
+    type: { en: "Chartered bank", fr: "Banque à charte" },
+    desc: { en: "Québec-based chartered bank offering commercial financing to SMEs.",
+            fr: "Banque à charte basée au Québec offrant du financement commercial aux PME." },
+    url: "https://www.banquelaurentienne.ca/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "evol", name: "EVOL", role: "financial",
+    stages: ["value"],
+    type: { en: "Financial institution", fr: "Institution financière" },
+    desc: { en: "Listed by Finance Montréal as a financial institution active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme institution financière actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "bnc", name: "BNC", role: "financial",
+    stages: ["value"],
+    type: { en: "Financial institution", fr: "Institution financière" },
+    desc: { en: "Listed by Finance Montréal as a financial institution active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme institution financière actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "mamh_ministere_des_affaires_municipales_", name: "MAMH (Ministère des Affaires municipales et de l’Habitation)", role: "government",
+    stages: ["value"],
+    type: { en: "Provincial ministry", fr: "Ministère provincial" },
+    desc: { en: "Provincial ministry setting frameworks and governance structures relevant to municipal and regional adaptation planning.",
+            fr: "Ministère provincial qui établit les cadres et les structures de gouvernance pertinents à la planification de l'adaptation municipale et régionale." },
+    url: "https://www.mamh.gouv.qc.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "amf_autorite_des_marches_financiers", name: "AMF (Autorité des marchés financiers)", role: "government",
+    stages: ["value"],
+    type: { en: "Provincial financial regulator", fr: "Régulateur financier provincial" },
+    desc: { en: "Québec's financial markets regulator, shaping disclosure and governance expectations relevant to climate risk.",
+            fr: "Régulateur des marchés financiers du Québec, qui façonne les attentes en matière de divulgation et de gouvernance liées au risque climatique." },
+    url: "https://lautorite.qc.ca/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "infrastructure_canada", name: "Infrastructure Canada", role: "government",
+    stages: ["value"],
+    type: { en: "Federal department", fr: "Ministère fédéral" },
+    desc: { en: "Federal department setting infrastructure funding frameworks that increasingly account for climate resilience.",
+            fr: "Ministère fédéral qui établit des cadres de financement des infrastructures tenant de plus en plus compte de la résilience climatique." },
+    url: "https://housing-infrastructure.canada.ca/index-eng.html", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "treasury_board_of_canada_secretariat_cen", name: "Treasury Board of Canada Secretariat (Centre for Greening Government)", role: "government",
+    stages: ["value"],
+    type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
+    desc: { en: "Listed by Finance Montréal as a government / public agency active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "national_research_council_canada", name: "National Research Council Canada", role: "government",
+    stages: ["value"],
+    type: { en: "Federal research agency", fr: "Agence fédérale de recherche" },
+    desc: { en: "Federal research agency developing technical standards and guidance relevant to climate-resilient building and infrastructure.",
+            fr: "Agence fédérale de recherche qui élabore des normes techniques et des guides pertinents au bâtiment et à l'infrastructure résilients au climat." },
+    url: "https://nrc.canada.ca/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "standards_council_of_canada", name: "Standards Council of Canada", role: "government",
+    stages: ["value"],
+    type: { en: "Federal standards body", fr: "Organisme fédéral de normalisation" },
+    desc: { en: "Federal standards body coordinating the development of climate-resilience standards used across sectors.",
+            fr: "Organisme fédéral de normalisation qui coordonne l'élaboration de normes de résilience climatique utilisées dans tous les secteurs." },
+    url: "https://scc.ca/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "ecole_des_dirigeants_des_premieres_natio", name: "École des dirigeants des Premières Nations", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "snap_quebec", name: "SNAP Québec", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "coop_sens_climat", name: "Coop Sens Climat", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "inm_institut_du_nouveau_monde", name: "INM (Institut du Nouveau Monde)", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "ed4s", name: "ED4S", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "esplanade", name: "Esplanade", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "ateliers_pour_la_biodiversite", name: "Ateliers pour la biodiversité", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "decarbone", name: "Décarbone+", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "pme_mtl", name: "PME MTL", role: "ecosystem",
+    stages: ["value", "implementation"],
+    type: { en: "Montréal SME support network", fr: "Réseau de soutien aux PME montréalaises" },
+    desc: { en: "Montréal's SME support network, offering sustainable-practices guidance and Synergie Montréal's circular-economy matching service.",
+            fr: "Réseau de soutien aux PME montréalaises, offrant des conseils en pratiques durables et le service de maillage en économie circulaire Synergie Montréal." },
+    url: "https://pmemtl.com/en", languages: ["fr", "en"],
+    initiatives: [
+      {
+        name: "Synergie Montréal",
+        desc: { en: "Circular-economy diagnostic and matching service, with impact measurement and follow-up.", fr: "Service de diagnostic et de maillage en économie circulaire, avec mesure d'impact et suivi." },
+        url: "https://pmemtl.com/services/synergie-montreal",
+      },
+    ],
+  },
+  {
+    id: "mtl_invivo", name: "MTL Invivo", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "fonds_ecoleader", name: "Fonds Écoleader", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Non-repayable funding program (FAQDD)", fr: "Programme de financement non remboursable (FAQDD)" },
+    desc: { en: "Non-repayable funding program covering expert support for individual or cohort environmental-transition projects.",
+            fr: "Programme de financement non remboursable couvrant l'accompagnement d'experts pour des projets individuels ou collectifs de transition environnementale." },
+    url: "https://faqdd.qc.ca/programmes/fonds-ecoleader/", languages: ["fr", "en"],
+    initiatives: [
+      {
+        name: "Fonds Écoleader – Biodiversité",
+        desc: { en: "Non-repayable funding for expert-led projects integrating biodiversity into business practices.", fr: "Financement non remboursable pour des projets menés par des experts intégrant la biodiversité aux pratiques d'affaires." },
+        url: "https://faqdd.qc.ca/programmes/fonds-ecoleader-biodiversite/",
+      },
+    ],
+  },
+  {
+    id: "ecole_des_entrepreneurs", name: "École des entrepreneurs", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "aero_montreal", name: "Aéro Montréal", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Aerospace industry cluster", fr: "Grappe industrielle aérospatiale" },
+    desc: { en: "Montréal's aerospace industry cluster, connecting member SMEs to sector-specific transition resources.",
+            fr: "Grappe industrielle aérospatiale de Montréal, qui met en lien les PME membres avec des ressources de transition propres au secteur." },
+    url: "https://www.aeromontreal.ca/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "entre_chefs_pme", name: "Entre Chefs PME", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "b_local_quebec", name: "B Local Québec", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "reseau_entreprendre", name: "Réseau Entreprendre", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Entrepreneur support network", fr: "Réseau de soutien aux entrepreneurs" },
+    desc: { en: "Entrepreneur support network offering mentorship and training relevant to sustainable business development.",
+            fr: "Réseau de soutien aux entrepreneurs offrant mentorat et formation pertinents au développement durable des entreprises." },
+    url: "https://www.reseau-entreprendre.org/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "college_des_administrateurs_de_societes_", name: "Collège des administrateurs de sociétés (CAS)", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "cpa_quebec", name: "CPA Québec", role: "ecosystem",
+    stages: ["value"],
+    type: { en: "Professional accounting order", fr: "Ordre professionnel des comptables" },
+    desc: { en: "Professional order for Québec accountants, offering training relevant to climate risk disclosure and reporting.",
+            fr: "Ordre professionnel des comptables du Québec, offrant de la formation pertinente à la divulgation et à la reddition de comptes en matière de risque climatique." },
+    url: "https://cpaquebec.ca/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "institut_de_la_finance_durbale_ifd", name: "Institut de la Finance Durbale (IFD)", role: "knowledge",
+    stages: ["strategy"],
+    type: { en: "Knowledge & research organization", fr: "Organisme de savoir et de recherche" },
+    desc: { en: "Listed by Finance Montréal as a knowledge & research organization active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de savoir et de recherche actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "https://institutdelafinancedurable.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "crim", name: "CRIM", role: "knowledge",
+    stages: ["strategy"],
+    type: { en: "Knowledge & research organization", fr: "Organisme de savoir et de recherche" },
+    desc: { en: "Listed by Finance Montréal as a knowledge & research organization active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de savoir et de recherche actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "axionable", name: "Axionable", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "https://www.axionable.com/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "rousseau_lefebvre", name: "Rousseau Lefebvre", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "nvira", name: "Nvira", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "atkinsrealis", name: "AtkinsRéalis", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Global engineering & project management firm", fr: "Firme mondiale de génie et de gestion de projets" },
+    desc: { en: "Global engineering firm designing infrastructure solutions that address climate vulnerabilities.",
+            fr: "Firme mondiale de génie qui conçoit des solutions d'infrastructure répondant aux vulnérabilités climatiques." },
+    url: "https://www.atkinsrealis.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "exp", name: "EXP", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Engineering & infrastructure consultancy", fr: "Firme de génie-conseil en infrastructure" },
+    desc: { en: "Engineering consultancy providing infrastructure design services that account for climate resilience.",
+            fr: "Firme de génie-conseil offrant des services de conception d'infrastructure tenant compte de la résilience climatique." },
+    url: "https://www.exp.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "englobe", name: "Englobe", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Environmental & engineering consultancy", fr: "Firme de génie-conseil environnemental" },
+    desc: { en: "Environmental and engineering consultancy supporting site assessment and resilience-related project design.",
+            fr: "Firme de génie-conseil environnemental qui appuie l'évaluation de sites et la conception de projets liés à la résilience." },
+    url: "https://www.englobecorp.com/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "groupe_carbonic", name: "Groupe Carbonic", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "ccg_carbon_consulting_group", name: "CCG (Carbon Consulting Group)", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "innocentre", name: "Inno‑centre", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "millani", name: "Millani", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "talsom", name: "Talsom", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "addere", name: "Addere", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "kpmg", name: "KPMG", role: "advisory",
+    stages: ["strategy", "implementation"],
+    type: { en: "Professional services firm", fr: "Firme de services professionnels" },
+    desc: { en: "Professional services firm offering sustainability and climate advisory services to businesses.",
+            fr: "Firme de services professionnels offrant des services-conseils en durabilité et climat aux entreprises." },
+    url: "https://kpmg.com/ca/en/home.html", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "quinn_partners", name: "Quinn & Partners", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "cae", name: "CAE", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "centech", name: "Centech", role: "advisory",
+    stages: ["strategy"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "fonds_immobilier_ftq", name: "Fonds immobilier FTQ", role: "financial",
+    stages: ["strategy"],
+    type: { en: "Real-estate investment fund", fr: "Fonds d'investissement immobilier" },
+    desc: { en: "Real-estate investment fund financing property projects, including resilience-oriented retrofits.",
+            fr: "Fonds d'investissement immobilier qui finance des projets immobiliers, y compris des rénovations axées sur la résilience." },
+    url: "https://fondsimmobilierftq.com/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "farm_credit_canada_fcc", name: "Farm Credit Canada (FCC)", role: "financial",
+    stages: ["strategy", "implementation"],
+    type: { en: "Federal agricultural lender", fr: "Prêteur agricole fédéral" },
+    desc: { en: "Federal Crown corporation providing financing to the agriculture and agri-food sector, including resilience investments.",
+            fr: "Société d'État fédérale qui finance le secteur agricole et agroalimentaire, y compris les investissements en résilience." },
+    url: "https://www.fcc-fac.ca/en.html", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "meie", name: "MEIE", role: "financial",
+    stages: ["strategy"],
+    type: { en: "Financial institution", fr: "Institution financière" },
+    desc: { en: "Listed by Finance Montréal as a financial institution active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme institution financière actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "mapaq_ministere_de_l_agriculture_des_pec", name: "MAPAQ (Ministère de l'Agriculture, des Pêcheries et de l'Alimentation)", role: "government",
+    stages: ["strategy"],
+    type: { en: "Provincial ministry", fr: "Ministère provincial" },
+    desc: { en: "Provincial ministry connecting agri-food SMEs with adaptation programs and sector-specific technical resources.",
+            fr: "Ministère provincial qui met les PME agroalimentaires en contact avec des programmes d'adaptation et des ressources techniques sectorielles." },
+    url: "https://www.quebec.ca/gouvernement/ministere/agriculture-pecheries-alimentation", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "transition_energetique_quebec_programs_n", name: "Transition énergétique Québec programs (now integrated under Québec government delivery)", role: "government",
+    stages: ["strategy"],
+    type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
+    desc: { en: "Listed by Finance Montréal as a government / public agency active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "climate_action_network_canada_can_rac", name: "Climate Action Network Canada (CAN-Rac)", role: "government",
+    stages: ["strategy"],
+    type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
+    desc: { en: "Listed by Finance Montréal as a government / public agency active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "synergie_quebec", name: "Synergie Québec", role: "ecosystem",
+    stages: ["strategy"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "rncreq", name: "RNCREQ", role: "ecosystem",
+    stages: ["strategy"],
+    type: { en: "Regional environmental council network", fr: "Réseau de conseils régionaux de l'environnement" },
+    desc: { en: "Network of regional environmental councils connecting SMEs to local adaptation partnerships.",
+            fr: "Réseau de conseils régionaux de l'environnement qui met les PME en lien avec des partenariats d'adaptation locaux." },
+    url: "https://rncreq.org/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "ccmm", name: "CCMM", role: "ecosystem",
+    stages: ["strategy"],
+    type: { en: "Metropolitan chamber of commerce", fr: "Chambre de commerce métropolitaine" },
+    desc: { en: "Montréal's metropolitan chamber of commerce, convening business members around sustainability and resilience topics.",
+            fr: "Chambre de commerce du Montréal métropolitain, qui rassemble ses membres autour d'enjeux de durabilité et de résilience." },
+    url: "https://www.ccmm.ca/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "cci", name: "CCI", role: "ecosystem",
+    stages: ["strategy"],
+    type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+    desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "fccq", name: "FCCQ", role: "ecosystem",
+    stages: ["strategy"],
+    type: { en: "Provincial chamber-of-commerce federation", fr: "Fédération de chambres de commerce provinciale" },
+    desc: { en: "Federation of Québec chambers of commerce, relaying adaptation resources to member businesses province-wide.",
+            fr: "Fédération des chambres de commerce du Québec, qui relaie des ressources d'adaptation aux entreprises membres à travers la province." },
+    url: "https://www.fccq.ca/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "oxia_initiative", name: "Oxia Initiative", role: "knowledge",
+    stages: ["implementation"],
+    type: { en: "Knowledge & research organization", fr: "Organisme de savoir et de recherche" },
+    desc: { en: "Listed by Finance Montréal as a knowledge & research organization active at the strategy implementation stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme organisme de savoir et de recherche actif à l'étape ou aux étapes suivantes du cycle d'adaptation : mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "https://www.oxia-initiative.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "pavics", name: "PAVICS", role: "knowledge",
+    stages: ["implementation"],
+    type: { en: "Climate data analysis platform", fr: "Plateforme d'analyse de données climatiques" },
+    desc: { en: "Ouranos-hosted climate data analysis platform used to validate risk metrics during implementation.",
+            fr: "Plateforme d'analyse de données climatiques hébergée par Ouranos, utilisée pour valider les indicateurs de risque en cours de mise en œuvre." },
+    url: "https://pavics.ouranos.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "capgemini", name: "Capgemini", role: "advisory",
+    stages: ["implementation"],
+    type: { en: "Global technology & consulting firm", fr: "Firme mondiale de technologie et de conseil" },
+    desc: { en: "Global technology and consulting firm supporting delivery of digital and sustainability transformation projects.",
+            fr: "Firme mondiale de technologie et de conseil qui appuie la réalisation de projets de transformation numérique et durable." },
+    url: "https://www.capgemini.com/ca-en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "optel", name: "Optel", role: "advisory",
+    stages: ["implementation"],
+    type: { en: "Traceability & supply-chain technology firm", fr: "Firme de technologie de traçabilité et de chaîne d'approvisionnement" },
+    desc: { en: "Technology firm providing supply-chain traceability tools relevant to implementing resilience measures.",
+            fr: "Firme technologique offrant des outils de traçabilité de chaîne d'approvisionnement pertinents à la mise en œuvre de mesures de résilience." },
+    url: "https://optelgroup.com/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "pwc_canada_sustainability_practice", name: "PwC Canada Sustainability Practice", role: "advisory",
+    stages: ["implementation"],
+    type: { en: "Professional services firm", fr: "Firme de services professionnels" },
+    desc: { en: "Professional services firm's sustainability practice, supporting implementation of climate and ESG strategy.",
+            fr: "Pratique de durabilité d'une firme de services professionnels, appuyant la mise en œuvre de la stratégie climatique et ESG." },
+    url: "https://www.pwc.com/ca/en.html", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "bdo_esg_sustainability_services", name: "BDO ESG & Sustainability Services", role: "advisory",
+    stages: ["implementation"],
+    type: { en: "Professional services firm", fr: "Firme de services professionnels" },
+    desc: { en: "Professional services firm's ESG practice, supporting SMEs implementing sustainability and adaptation measures.",
+            fr: "Pratique ESG d'une firme de services professionnels, qui appuie les PME dans la mise en œuvre de mesures de durabilité et d'adaptation." },
+    url: "https://www.bdo.ca/en-ca/services/advisory/sustainability-esg/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "mallette_developpement_durable", name: "Mallette - Développement durable", role: "advisory",
+    stages: ["implementation"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the strategy implementation stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "raymond_chabot_grant_thornton_rcgt", name: "Raymond Chabot Grant Thornton (RCGT)", role: "advisory",
+    stages: ["implementation"],
+    type: { en: "Professional services firm", fr: "Firme de services professionnels" },
+    desc: { en: "Professional services firm offering sustainability advisory alongside accounting and business services.",
+            fr: "Firme de services professionnels offrant des services-conseils en durabilité en plus de ses services comptables et d'affaires." },
+    url: "https://www.rcgt.com/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "efcg_econ", name: "EFCG/Econ", role: "advisory",
+    stages: ["implementation"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the strategy implementation stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "vooban", name: "Vooban", role: "advisory",
+    stages: ["implementation"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the strategy implementation stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "coop_carbone", name: "Coop Carbone", role: "advisory",
+    stages: ["implementation"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the strategy implementation stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "propulia_capital", name: "Propulia Capital", role: "financial",
+    stages: ["implementation"],
+    type: { en: "Financial institution", fr: "Institution financière" },
+    desc: { en: "Listed by Finance Montréal as a financial institution active at the strategy implementation stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme institution financière actif à l'étape ou aux étapes suivantes du cycle d'adaptation : mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "canada_economic_development_for_quebec_r", name: "Canada Economic Development for Québec Regions (CED)", role: "government",
+    stages: ["implementation"],
+    type: { en: "Federal regional development agency", fr: "Agence fédérale de développement régional" },
+    desc: { en: "Federal regional development agency funding SME environmental-transition projects and building green-transition roadmaps.",
+            fr: "Agence fédérale de développement régional qui finance des projets de transition environnementale des PME et élabore des feuilles de route de transition verte." },
+    url: "https://www.canada.ca/en/economic-development-quebec-regions.html", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "natural_resources_canada_nrcan", name: "Natural Resources Canada (NRCan)", role: "government",
+    stages: ["implementation"],
+    type: { en: "Federal department", fr: "Ministère fédéral" },
+    desc: { en: "Federal department administering programs and technical resources for energy and climate resilience.",
+            fr: "Ministère fédéral qui administre des programmes et des ressources techniques pour l'énergie et la résilience climatique." },
+    url: "https://natural-resources.canada.ca/home", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "federation_of_canadian_municipalities_fc", name: "Federation of Canadian Municipalities (FCM) - Green Municipal Fund", role: "government",
+    stages: ["implementation"],
+    type: { en: "National municipal association", fr: "Association municipale nationale" },
+    desc: { en: "National municipal association whose Green Municipal Fund provides grants and loans for local environmental and resilience projects.",
+            fr: "Association municipale nationale dont le Fonds municipal vert offre subventions et prêts pour des projets environnementaux et de résilience locaux." },
+    url: "https://fcm.ca/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "mcgill_bieler_school_of_environment", name: "McGill Bieler School of Environment", role: "knowledge",
+    stages: ["post"],
+    type: { en: "University research & teaching unit", fr: "Unité universitaire de recherche et d'enseignement" },
+    desc: { en: "University unit conducting environmental research relevant to evaluating adaptation outcomes.",
+            fr: "Unité universitaire menant des recherches environnementales pertinentes à l'évaluation des résultats de l'adaptation." },
+    url: "https://www.mcgill.ca/bieler/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "universite_laval_eds", name: "Université Laval EDS", role: "knowledge",
+    stages: ["post"],
+    type: { en: "University sustainable-development institute", fr: "Institut universitaire en développement durable" },
+    desc: { en: "University institute studying sustainable development outcomes, including post-implementation adaptation research.",
+            fr: "Institut universitaire qui étudie les résultats du développement durable, y compris la recherche sur l'adaptation post-mise en œuvre." },
+    url: "https://www.eds.ulaval.ca/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "climate_seed", name: "Climate Seed", role: "advisory",
+    stages: ["post"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the post-implementation analysis stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : analyse post-mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "https://climateseed.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "bureau_de_normalisation_du_quebec_bnq", name: "Bureau de normalisation du Québec (BNQ)", role: "advisory",
+    stages: ["post"],
+    type: { en: "Standards body", fr: "Organisme de normalisation" },
+    desc: { en: "Québec's standards body, developing certification schemes relevant to sustainable and resilient practices.",
+            fr: "Organisme de normalisation du Québec, qui élabore des schémas de certification pertinents aux pratiques durables et résilientes." },
+    url: "https://www.bnq.qc.ca/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "csa_group", name: "CSA Group", role: "advisory",
+    stages: ["post"],
+    type: { en: "Standards & testing organization", fr: "Organisme de normalisation et d'essais" },
+    desc: { en: "Standards and testing organization publishing climate-resilience standards for infrastructure and buildings.",
+            fr: "Organisme de normalisation et d'essais qui publie des normes de résilience climatique pour les infrastructures et les bâtiments." },
+    url: "https://www.csagroup.org/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "environmental_resources_management_erm", name: "Environmental Resources Management (ERM)", role: "advisory",
+    stages: ["post"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the post-implementation analysis stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : analyse post-mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "ghd", name: "GHD", role: "advisory",
+    stages: ["post"],
+    type: { en: "Global engineering & environmental consultancy", fr: "Firme mondiale de génie-conseil et d'environnement" },
+    desc: { en: "Global engineering consultancy evaluating the performance of completed resilience and infrastructure projects.",
+            fr: "Firme mondiale de génie-conseil qui évalue la performance des projets de résilience et d'infrastructure réalisés." },
+    url: "https://www.ghd.com/en-ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "associated_engineering", name: "Associated Engineering", role: "advisory",
+    stages: ["post"],
+    type: { en: "Engineering consultancy", fr: "Firme de génie-conseil" },
+    desc: { en: "Engineering consultancy providing post-implementation performance review for infrastructure projects.",
+            fr: "Firme de génie-conseil offrant un bilan de performance post-mise en œuvre pour les projets d'infrastructure." },
+    url: "https://ae.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "navitas_conseil_quebec", name: "Navitas Conseil (Québec)", role: "advisory",
+    stages: ["post"],
+    type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+    desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the post-implementation analysis stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : analyse post-mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "co_operators", name: "Co-operators", role: "financial",
+    stages: ["post"],
+    type: { en: "Insurance cooperative", fr: "Coopérative d'assurance" },
+    desc: { en: "Insurance cooperative offering commercial coverage informed by climate risk assessment.",
+            fr: "Coopérative d'assurance offrant une couverture commerciale éclairée par l'évaluation du risque climatique." },
+    url: "https://www.cooperators.ca/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "canada_infrastructure_bank_cib", name: "Canada Infrastructure Bank (CIB)", role: "financial",
+    stages: ["post"],
+    type: { en: "Federal infrastructure financing Crown corporation", fr: "Société d'État fédérale de financement d'infrastructures" },
+    desc: { en: "Federal Crown corporation co-financing large-scale infrastructure projects, including climate-resilience investments.",
+            fr: "Société d'État fédérale qui cofinance de grands projets d'infrastructure, y compris des investissements en résilience climatique." },
+    url: "https://cib-bic.ca/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "cdpq_infra", name: "CDPQ Infra", role: "financial",
+    stages: ["post"],
+    type: { en: "Infrastructure subsidiary of CDPQ", fr: "Filiale infrastructure de la CDPQ" },
+    desc: { en: "CDPQ's infrastructure arm, involved in major transit and infrastructure projects where resilience is assessed post-implementation.",
+            fr: "Bras infrastructure de la CDPQ, impliqué dans de grands projets de transport et d'infrastructure où la résilience est évaluée après la mise en œuvre." },
+    url: "https://cdpqinfra.com/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "la_financiere_argicole_du_quebec_fadq", name: "La Financière argicole du Québec (FADQ)", role: "financial",
+    stages: ["post"],
+    type: { en: "Provincial agricultural insurer/lender", fr: "Assureur et prêteur agricole provincial" },
+    desc: { en: "Provincial agricultural insurer and lender, protecting farm businesses against climate-related production risk.",
+            fr: "Assureur et prêteur agricole provincial, qui protège les entreprises agricoles contre les risques de production liés au climat." },
+    url: "https://www.fadq.qc.ca/en/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "hydro_quebec_risk_resilience", name: "Hydro-Québec (risk & resilience)", role: "financial",
+    stages: ["post"],
+    type: { en: "Provincial electric utility", fr: "Société d'État en électricité" },
+    desc: { en: "Provincial electric utility whose risk and resilience functions inform grid adaptation and business continuity.",
+            fr: "Société d'État en électricité dont les fonctions de risque et de résilience éclairent l'adaptation du réseau et la continuité des activités." },
+    url: "https://www.hydroquebec.com/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "statistics_canada", name: "Statistics Canada", role: "government",
+    stages: ["post"],
+    type: { en: "Federal statistical agency", fr: "Agence statistique fédérale" },
+    desc: { en: "Federal statistical agency collecting economic and environmental data used to report on adaptation outcomes.",
+            fr: "Agence statistique fédérale qui recueille des données économiques et environnementales utilisées pour rendre compte des résultats de l'adaptation." },
+    url: "https://www.statcan.gc.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "commission_de_la_construction_du_quebec_", name: "Commission de la construction du Québec (CCQ)", role: "government",
+    stages: ["post"],
+    type: { en: "Construction industry regulatory body", fr: "Organisme de réglementation de l'industrie de la construction" },
+    desc: { en: "Regulatory body overseeing Québec's construction industry, relevant to reporting on adaptation-related construction work.",
+            fr: "Organisme de réglementation de l'industrie de la construction du Québec, pertinent pour la reddition de comptes sur les travaux liés à l'adaptation." },
+    url: "https://www.ccq.org/en", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "office_of_the_auditor_general_of_canada", name: "Office of the Auditor General of Canada", role: "government",
+    stages: ["post"],
+    type: { en: "Federal audit office", fr: "Bureau d'audit fédéral" },
+    desc: { en: "Federal audit office reviewing whether public adaptation programs and spending achieve their intended outcomes.",
+            fr: "Bureau d'audit fédéral qui examine si les programmes et dépenses publics en adaptation atteignent les résultats visés." },
+    url: "https://www.oag-bvg.gc.ca/", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "commission_municipale_du_quebec_cmq", name: "Commission municipale du Québec (CMQ)", role: "government",
+    stages: ["post"],
+    type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
+    desc: { en: "Listed by Finance Montréal as a government / public agency active at the post-implementation analysis stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : analyse post-mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "office_quebecois_de_la_langue_francaise_", name: "Office québécois de la langue française/Données Québec ecosystem", role: "government",
+    stages: ["post"],
+    type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
+    desc: { en: "Listed by Finance Montréal as a government / public agency active at the post-implementation analysis stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : analyse post-mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+  {
+    id: "secretariat_du_conseil_du_tresor_quebec", name: "Secrétariat du Conseil du trésor (Québec)", role: "government",
+    stages: ["post"],
+    type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
+    desc: { en: "Listed by Finance Montréal as a government / public agency active at the post-implementation analysis stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
+            fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : analyse post-mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
+    url: "#", languages: ["fr", "en"],
+    initiatives: [],
+  },
+];
+
+/* ============================================================
+   I18N — UI STRINGS
+   ============================================================ */
+
+const UI = {
+  fr: {
+    brand: "Finance Montréal",
+    kicker: "Navigateur de l'écosystème d'adaptation",
+    tabPanorama: "Panorama",
+    tabFinder: "Recherche guidée",
+    panoramaHint: "Cliquez une case de la grille pour voir les acteurs qui y sont associés.",
+    stageColLabel: "Étape",
+    sentence1: "Mon client en est à l'étape",
+    sentence2: "et cherche",
+    sentence3: "pour l'aider.",
+    roleAny: "tous les rôles",
+    stagePlaceholder: "choisir une étape",
+    searchPlaceholder: "Rechercher dans les résultats…",
+    resultsCount: (n) => `${n} organisation${n === 1 ? "" : "s"} correspondante${n === 1 ? "" : "s"}`,
+    visitSite: "Visiter le site",
+    close: "Fermer",
+    noActors: "Aucun acteur pour cette sélection.",
+    initiatives: "Initiatives",
+    languagesLabel: "Langues",
+    typeLabel: "Type",
+    stagesLabel: "Étapes couvertes",
+    actorsIn: "acteurs",
+    clearFilter: "Réinitialiser",
+    allStage: (s) => `Toute l'étape — ${s}`,
+    allRole: (r) => `Tout le rôle — ${r}`,
+    demoNote: "Démonstration — données fictives et partielles à valider par Finance Montréal.",
+    langToggle: "EN",
+  },
+  en: {
+    brand: "Finance Montréal",
+    kicker: "Adaptation Ecosystem Navigator",
+    tabPanorama: "Panorama",
+    tabFinder: "Guided finder",
+    panoramaHint: "Click a cell in the grid to see its actors.",
+    stageColLabel: "Stage",
+    sentence1: "My client is working through",
+    sentence2: "and is looking for",
+    sentence3: "to help them.",
+    roleAny: "all roles",
+    stagePlaceholder: "choose a stage",
+    searchPlaceholder: "Search within results…",
+    resultsCount: (n) => `${n} matching organization${n === 1 ? "" : "s"}`,
+    visitSite: "Visit site",
+    close: "Close",
+    noActors: "No actors for this selection.",
+    initiatives: "Initiatives",
+    languagesLabel: "Languages",
+    typeLabel: "Type",
+    stagesLabel: "Stages covered",
+    actorsIn: "actors",
+    clearFilter: "Clear",
+    allStage: (s) => `Whole stage — ${s}`,
+    allRole: (r) => `Whole role — ${r}`,
+    demoNote: "Demo — seed data is partial and fictionalized pending validation by Finance Montréal.",
+    langToggle: "FR",
+  },
+};
+
+const tx = (obj, lang) => (obj ? obj[lang] ?? obj.en ?? "" : "");
+
+/* ============================================================
+   DATA HELPERS
+   ============================================================ */
+
+const getFunction = (stage, role) => FUNCTIONS.find((f) => f.stage === stage && f.role === role);
+const actorsForCell = (stage, role) => ACTORS.filter((a) => a.stages.includes(stage) && a.role === role);
+const actorsForStage = (stage) => ACTORS.filter((a) => a.stages.includes(stage));
+const actorsForRole = (role) => ACTORS.filter((a) => a.role === role);
+const matchesSearch = (actor, lang, q) => {
+  if (!q.trim()) return true;
+  const needle = q.trim().toLowerCase();
+  return (
+    actor.name.toLowerCase().includes(needle) ||
+    tx(actor.desc, lang).toLowerCase().includes(needle) ||
+    tx(actor.type, lang).toLowerCase().includes(needle)
+  );
+};
+
+/* ============================================================
+   SMALL UI PRIMITIVES
+   ============================================================ */
+
+function Coord({ r, c }) {
+  return (
+    <span
+      style={{
+        fontFamily: "'Montserrat', sans-serif",
+        fontSize: 10,
+        letterSpacing: "0.06em",
+        color: TOKENS.moss,
+      }}
+    >
+      R{r}·C{c}
+    </span>
+  );
+}
+
+function Tag({ children, tone = "moss" }) {
+  const bg = tone === "ochre" ? TOKENS.ochreLight : TOKENS.mossLight;
+  const fg = tone === "ochre" ? TOKENS.ochre : TOKENS.forest;
+  return (
+    <span
+      className="inline-flex items-center px-2 py-0.5 rounded-sm"
+      style={{
+        background: bg,
+        color: fg,
+        fontFamily: "'Montserrat', sans-serif",
+        fontSize: 11,
+        letterSpacing: "0.02em",
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function ActorCard({ actor, lang, ui, onOpen }) {
+  const role = ROLES.find((r) => r.id === actor.role);
+  return (
+    <button
+      onClick={() => onOpen(actor)}
+      className="fm-card w-full text-left p-4 rounded-md transition-all"
+      style={{
+        background: "#fff",
+        border: `1px solid ${TOKENS.line}`,
+      }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, fontSize: 17, color: TOKENS.ink }}
+          >
+            {actor.name}
+          </div>
+          <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 12.5, color: TOKENS.slate, marginTop: 2 }}>
+            {tx(actor.type, lang)}
+          </div>
+        </div>
+        <ArrowRight size={16} color={TOKENS.ochre} style={{ flexShrink: 0, marginTop: 4 }} />
+      </div>
+      <p
+        style={{
+          fontFamily: "'Montserrat', sans-serif",
+          fontSize: 13.5,
+          color: TOKENS.ink,
+          marginTop: 10,
+          lineHeight: 1.5,
+        }}
+      >
+        {tx(actor.desc, lang).length > 140 ? tx(actor.desc, lang).slice(0, 140) + "…" : tx(actor.desc, lang)}
+      </p>
+      <div className="flex flex-wrap gap-1.5 mt-3">
+        <Tag>{tx(role, lang)}</Tag>
+        {actor.stages.slice(0, 3).map((s) => (
+          <Tag key={s} tone="ochre">
+            {tx(STAGES.find((st) => st.id === s), lang)}
+          </Tag>
+        ))}
+        {actor.stages.length > 3 && <Tag tone="ochre">+{actor.stages.length - 3}</Tag>}
+      </div>
+    </button>
+  );
+}
+
+function ActorDetail({ actor, lang, ui, onClose }) {
+  if (!actor) return null;
+  const role = ROLES.find((r) => r.id === actor.role);
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6"
+      style={{ background: "rgba(16,19,42,0.55)" }}
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-lg sm:rounded-md"
+        style={{ background: TOKENS.paper, border: `1px solid ${TOKENS.line}` }}
+      >
+        <div className="p-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <Coord
+                r={STAGES.findIndex((s) => actor.stages.includes(s.id)) + 1}
+                c={ROLES.findIndex((r) => r.id === actor.role) + 1}
+              />
+              <h2 style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: 24, color: TOKENS.forestDark, marginTop: 4 }}>
+                {actor.name}
+              </h2>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 13, color: TOKENS.slate, marginTop: 2 }}>
+                {tx(actor.type, lang)}
+              </div>
+            </div>
+            <button onClick={onClose} aria-label={ui.close} className="p-1 rounded-sm" style={{ color: TOKENS.slate }}>
+              <X size={20} />
+            </button>
+          </div>
+
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 14.5, color: TOKENS.ink, lineHeight: 1.6, marginTop: 16 }}>
+            {tx(actor.desc, lang)}
+          </p>
+
+          <div className="flex flex-wrap gap-1.5 mt-4">
+            <Tag>{tx(role, lang)}</Tag>
+          </div>
+
+          <div className="mt-5 pt-4" style={{ borderTop: `1px solid ${TOKENS.line}` }}>
+            <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 11, color: TOKENS.slate, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+              {ui.stagesLabel}
+            </div>
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {actor.stages.map((s) => (
+                <Tag key={s} tone="ochre">
+                  {tx(STAGES.find((st) => st.id === s), lang)}
+                </Tag>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 11, color: TOKENS.slate, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+              {ui.languagesLabel}
+            </div>
+            <div className="mt-1" style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 13.5, color: TOKENS.ink }}>
+              {actor.languages.map((l) => l.toUpperCase()).join(" · ")}
+            </div>
+          </div>
+
+          {actor.initiatives?.length > 0 && (
+            <div className="mt-4">
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 11, color: TOKENS.slate, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                {ui.initiatives}
+              </div>
+              <div className="mt-2 space-y-2">
+                {actor.initiatives.map((init, i) => (
+                  <div key={i} className="p-3 rounded-sm" style={{ background: "#fff", border: `1px solid ${TOKENS.line}` }}>
+                    <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, fontSize: 13.5, color: TOKENS.ink }}>
+                      {init.name}
+                    </div>
+                    <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 12.5, color: TOKENS.slate, marginTop: 2 }}>
+                      {tx(init.desc, lang)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <a
+            href={actor.url}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-sm"
+            style={{ background: TOKENS.forest, color: "#fff", fontFamily: "'Montserrat', sans-serif", fontSize: 13.5, fontWeight: 600 }}
+          >
+            {ui.visitSite} <ExternalLink size={14} />
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Drawer({ selection, lang, ui, search, setSearch, onOpenActor, onClose }) {
+  if (!selection) return null;
+
+  const fn = getFunction(selection.stage, selection.role);
+  const title = tx(fn?.label, lang);
+  const subtitle = tx(fn?.desc, lang);
+  const list = actorsForCell(selection.stage, selection.role);
+  const filtered = list.filter((a) => matchesSearch(a, lang, search));
+
+  return (
+    <div
+      className="fixed inset-0 z-40 flex justify-end"
+      style={{ background: "rgba(16,19,42,0.45)" }}
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full sm:w-[420px] h-full overflow-y-auto"
+        style={{ background: TOKENS.paper, borderLeft: `1px solid ${TOKENS.line}` }}
+      >
+        <div className="p-5 sticky top-0" style={{ background: TOKENS.paper, borderBottom: `1px solid ${TOKENS.line}` }}>
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h3 style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: 19, color: TOKENS.forestDark }}>
+                {title}
+              </h3>
+              {subtitle && (
+                <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 13, color: TOKENS.slate, marginTop: 4, lineHeight: 1.5 }}>
+                  {subtitle}
+                </p>
+              )}
+            </div>
+            <button onClick={onClose} aria-label={ui.close} style={{ color: TOKENS.slate }}>
+              <X size={20} />
+            </button>
+          </div>
+
+          <div
+            className="mt-4 flex items-center gap-2 px-3 py-2 rounded-sm"
+            style={{ background: "#fff", border: `1px solid ${TOKENS.line}` }}
+          >
+            <Search size={14} color={TOKENS.slate} />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={ui.searchPlaceholder}
+              className="w-full outline-none bg-transparent"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 13 }}
+            />
+          </div>
+          <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 11, color: TOKENS.moss, marginTop: 8 }}>
+            {ui.resultsCount(filtered.length)}
+          </div>
+        </div>
+
+        <div className="p-5 space-y-3">
+          {filtered.length === 0 && (
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 13, color: TOKENS.slate }}>{ui.noActors}</p>
+          )}
+          {filtered.map((a) => (
+            <ActorCard key={a.id} actor={a} lang={lang} ui={ui} onOpen={onOpenActor} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   PANORAMA VIEW
+   ============================================================ */
+
+function Panorama({ lang, ui, isMobile, onSelect }) {
+  const [openStage, setOpenStage] = useState(STAGES[0].id);
+
+  if (isMobile) {
+    return (
+      <div className="space-y-2">
+        {STAGES.map((stage, ri) => {
+          const isOpen = openStage === stage.id;
+          return (
+            <div key={stage.id} className="rounded-md overflow-hidden" style={{ border: `1px solid ${TOKENS.line}` }}>
+              <button
+                onClick={() => setOpenStage(isOpen ? null : stage.id)}
+                className="w-full flex items-center justify-between px-4 py-3"
+                style={{ background: TOKENS.forest, color: "#fff" }}
+              >
+                <span style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, fontSize: 15 }}>
+                  {ri + 1}. {tx(stage, lang)}
+                </span>
+                <ChevronDown size={16} style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform .15s" }} />
+              </button>
+              {isOpen && (
+                <div className="p-2 grid grid-cols-1 gap-2" style={{ background: TOKENS.paper }}>
+                  {ROLES.map((role, ci) => {
+                    const fn = getFunction(stage.id, role.id);
+                    const count = actorsForCell(stage.id, role.id).length;
+                    return (
+                      <button
+                        key={role.id}
+                        onClick={() => onSelect({ kind: "cell", stage: stage.id, role: role.id })}
+                        className="fm-cell text-left p-3 rounded-sm"
+                        style={{ background: "#fff", border: `1px solid ${TOKENS.line}` }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <Coord r={ri + 1} c={ci + 1} />
+                          <span
+                            className="px-1.5 rounded-sm"
+                            style={{ background: TOKENS.mossLight, color: TOKENS.forest, fontFamily: "'Montserrat', sans-serif", fontSize: 10 }}
+                          >
+                            {count}
+                          </span>
+                        </div>
+                        <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, fontSize: 13, color: TOKENS.ink, marginTop: 4 }}>
+                          {tx(fn?.label, lang)}
+                        </div>
+                        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 11, color: TOKENS.slate, marginTop: 2 }}>
+                          {tx(role, lang)}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <div style={{ minWidth: 860 }}>
+        {/* header row */}
+        <div className="grid" style={{ gridTemplateColumns: `160px repeat(5, 1fr)` }}>
+          <div />
+          {ROLES.map((role, ci) => (
+            <div
+              key={role.id}
+              className="text-left px-3 py-3 rounded-t-sm"
+              style={{ background: TOKENS.forestDark, color: "#fff", marginLeft: 3 }}
+            >
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10, color: TOKENS.ochreLight, opacity: 0.8 }}>
+                C{ci + 1}
+              </div>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, fontSize: 13.5, marginTop: 2, lineHeight: 1.25 }}>
+                {tx(role, lang)}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* body rows */}
+        {STAGES.map((stage, ri) => (
+          <div key={stage.id} className="grid mt-[3px]" style={{ gridTemplateColumns: `160px repeat(5, 1fr)` }}>
+            <div
+              className="text-left px-3 py-3 rounded-l-sm"
+              style={{ background: TOKENS.forest, color: "#fff", marginRight: 3 }}
+            >
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10, color: TOKENS.ochreLight, opacity: 0.8 }}>
+                R{ri + 1}
+              </div>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, fontSize: 13, marginTop: 2, lineHeight: 1.25 }}>
+                {tx(stage, lang)}
+              </div>
+            </div>
+            {ROLES.map((role, ci) => {
+              const fn = getFunction(stage.id, role.id);
+              const count = actorsForCell(stage.id, role.id).length;
+              return (
+                <button
+                  key={role.id}
+                  onClick={() => onSelect({ kind: "cell", stage: stage.id, role: role.id })}
+                  className="fm-cell text-left p-3"
+                  style={{ background: "#fff", marginLeft: 3, border: `1px solid ${TOKENS.line}` }}
+                >
+                  <div className="flex items-center justify-between">
+                    <Coord r={ri + 1} c={ci + 1} />
+                    <span
+                      className="px-1.5 rounded-sm"
+                      style={{ background: TOKENS.mossLight, color: TOKENS.forest, fontFamily: "'Montserrat', sans-serif", fontSize: 10 }}
+                    >
+                      {count}
+                    </span>
+                  </div>
+                  <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, fontSize: 12.5, color: TOKENS.ink, marginTop: 6, lineHeight: 1.3 }}>
+                    {tx(fn?.label, lang)}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   GUIDED FINDER VIEW
+   ============================================================ */
+
+function SelectChip({ value, onChange, options, placeholder }) {
+  return (
+    <span className="relative inline-block">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="fm-select appearance-none cursor-pointer"
+        style={{
+          fontFamily: "'Montserrat', sans-serif",
+          fontWeight: 600,
+          fontSize: "inherit",
+          color: TOKENS.paper,
+          background: "transparent",
+          borderBottom: `2px solid ${TOKENS.ochreLight}`,
+          padding: "0 26px 2px 2px",
+        }}
+      >
+        {placeholder && <option value="">{placeholder}</option>}
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown size={14} color={TOKENS.ochreLight} style={{ position: "absolute", right: 4, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+    </span>
+  );
+}
+
+function GuidedFinder({ lang, ui, search, setSearch, onOpenActor }) {
+  const [stage, setStage] = useState(STAGES[0].id);
+  const [role, setRole] = useState("");
+
+  const groups = useMemo(() => {
+    const activeRoles = role ? ROLES.filter((r) => r.id === role) : ROLES;
+    return activeRoles
+      .map((r) => ({
+        role: r,
+        fn: getFunction(stage, r.id),
+        actors: actorsForCell(stage, r.id).filter((a) => matchesSearch(a, lang, search)),
+      }))
+      .filter((g) => g.actors.length > 0 || !role);
+  }, [stage, role, lang, search]);
+
+  const totalCount = groups.reduce((sum, g) => sum + g.actors.length, 0);
+
+  return (
+    <div>
+      <div
+        className="p-6 rounded-md"
+        style={{ background: TOKENS.forestDark, color: TOKENS.paper }}
+      >
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 22, lineHeight: 1.6 }}>
+          {ui.sentence1}{" "}
+          <SelectChip
+            value={stage}
+            onChange={setStage}
+            options={STAGES.map((s) => ({ value: s.id, label: tx(s, lang) }))}
+          />{" "}
+          {ui.sentence2}{" "}
+          <SelectChip
+            value={role}
+            onChange={setRole}
+            options={ROLES.map((r) => ({ value: r.id, label: tx(r, lang) }))}
+            placeholder={ui.roleAny}
+          />{" "}
+          {ui.sentence3}
+        </p>
+      </div>
+
+      <div
+        className="mt-4 flex items-center gap-2 px-3 py-2 rounded-sm max-w-md"
+        style={{ background: "#fff", border: `1px solid ${TOKENS.line}` }}
+      >
+        <Search size={14} color={TOKENS.slate} />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={ui.searchPlaceholder}
+          className="w-full outline-none bg-transparent"
+          style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 13 }}
+        />
+      </div>
+      <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 12, color: TOKENS.forest, marginTop: 10 }}>
+        {ui.resultsCount(totalCount)}
+      </div>
+
+      <div className="mt-5 space-y-7">
+        {groups.map((g) => (
+          <div key={g.role.id}>
+            <div className="flex items-baseline gap-2 pb-2" style={{ borderBottom: `1px solid ${TOKENS.line}` }}>
+              <h4 style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: 16, color: TOKENS.forestDark }}>
+                {tx(g.role, lang)}
+              </h4>
+              <span style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 11, color: TOKENS.moss }}>
+                {g.actors.length}
+              </span>
+            </div>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 13, color: TOKENS.slate, marginTop: 8, lineHeight: 1.55 }}>
+              {tx(g.fn?.desc, lang)}
+            </p>
+            {g.actors.length > 0 ? (
+              <div className="grid sm:grid-cols-2 gap-3 mt-3">
+                {g.actors.map((a) => (
+                  <ActorCard key={a.id} actor={a} lang={lang} ui={ui} onOpen={onOpenActor} />
+                ))}
+              </div>
+            ) : (
+              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 12.5, color: TOKENS.slate, marginTop: 8, fontStyle: "italic" }}>
+                {ui.noActors}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   ROOT APP
+   ============================================================ */
+
+function App() {
+  const [lang, setLang] = useState("fr");
+  const [view, setView] = useState("panorama");
+  const [selection, setSelection] = useState(null);
+  const [drawerSearch, setDrawerSearch] = useState("");
+  const [finderSearch, setFinderSearch] = useState("");
+  const [detailActor, setDetailActor] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const wrapRef = useRef(null);
+
+  const ui = UI[lang];
+
+  useEffect(() => {
+    if (!wrapRef.current) return;
+    const el = wrapRef.current;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0].contentRect.width;
+      setIsMobile(w < 760);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  return (
+    <div
+      ref={wrapRef}
+      style={{
+        background: TOKENS.paper,
+        minHeight: "100%",
+        color: TOKENS.ink,
+      }}
+    >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+        .fm-cell { transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
+        .fm-cell:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(16,19,42,0.12); border-color: ${TOKENS.ochre} !important; }
+        .fm-card:hover { border-color: ${TOKENS.ochre} !important; box-shadow: 0 4px 14px rgba(16,19,42,0.10); }
+        .fm-tab { transition: color .12s ease, border-color .12s ease; }
+        .fm-select:focus { outline: none; }
+        ::selection { background: ${TOKENS.ochreLight}; }
+      `}</style>
+
+      {/* HEADER */}
+      <header style={{ borderBottom: `1px solid ${TOKENS.line}`, background: TOKENS.paper }}>
+        <div className="max-w-5xl mx-auto px-5 sm:px-8 py-5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div
+              className="flex items-center justify-center rounded-sm"
+              style={{ width: 38, height: 38, background: TOKENS.forest, color: "#fff", fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: 15 }}
+            >
+              FM
+            </div>
+            <div>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: 16, color: TOKENS.forestDark, lineHeight: 1.1 }}>
+                {ui.brand}
+              </div>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10.5, color: TOKENS.slate, letterSpacing: "0.04em", marginTop: 2 }}>
+                {ui.kicker.toUpperCase()}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setLang(lang === "fr" ? "en" : "fr")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm"
+            style={{ border: `1px solid ${TOKENS.forest}`, color: TOKENS.forest, fontFamily: "'Montserrat', sans-serif", fontSize: 12 }}
+          >
+            <Globe size={13} /> {ui.langToggle}
+          </button>
+        </div>
+
+        {/* TABS */}
+        <div className="max-w-5xl mx-auto px-5 sm:px-8 flex gap-6" style={{ borderTop: `1px solid ${TOKENS.line}` }}>
+          {[
+            { id: "panorama", label: ui.tabPanorama, icon: LayoutGrid },
+            { id: "finder", label: ui.tabFinder, icon: Compass },
+          ].map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setView(t.id)}
+              className="fm-tab flex items-center gap-2 py-3"
+              style={{
+                borderBottom: `2px solid ${view === t.id ? TOKENS.ochre : "transparent"}`,
+                color: view === t.id ? TOKENS.forestDark : TOKENS.slate,
+                fontFamily: "'Montserrat', sans-serif",
+                fontWeight: 600,
+                fontSize: 13.5,
+              }}
+            >
+              <t.icon size={15} /> {t.label}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {/* MAIN */}
+      <main className="max-w-5xl mx-auto px-5 sm:px-8 py-7">
+        {view === "panorama" ? (
+          <>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 13, color: TOKENS.slate, marginBottom: 16, maxWidth: 560 }}>
+              {ui.panoramaHint}
+            </p>
+            <Panorama lang={lang} ui={ui} isMobile={isMobile} onSelect={(sel) => { setSelection(sel); setDrawerSearch(""); }} />
+          </>
+        ) : (
+          <GuidedFinder lang={lang} ui={ui} search={finderSearch} setSearch={setFinderSearch} onOpenActor={setDetailActor} />
+        )}
+      </main>
+
+      <footer className="max-w-5xl mx-auto px-5 sm:px-8 pb-8">
+        <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10.5, color: TOKENS.moss }}>
+          {ui.demoNote}
+        </p>
+      </footer>
+
+      <Drawer
+        selection={selection}
+        lang={lang}
+        ui={ui}
+        search={drawerSearch}
+        setSearch={setDrawerSearch}
+        onOpenActor={setDetailActor}
+        onClose={() => setSelection(null)}
+      />
+      <ActorDetail actor={detailActor} lang={lang} ui={ui} onClose={() => setDetailActor(null)} />
+    </div>
+  );
+}
+
+
+/* ============================================================
+   MOUNT
+   ============================================================ */
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+
+</script>
+</body>
+</html>
