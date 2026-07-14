@@ -2003,9 +2003,9 @@ function SelectChip({ value, onChange, options, placeholder }) {
           fontFamily: "'Montserrat', sans-serif",
           fontWeight: 600,
           fontSize: "inherit",
-          color: TOKENS.forestDark,
+          color: TOKENS.paper,
           background: "transparent",
-          borderBottom: `2px solid ${TOKENS.ochre}`,
+          borderBottom: `2px solid ${TOKENS.ochreLight}`,
           padding: "0 26px 2px 2px",
         }}
       >
@@ -2016,7 +2016,7 @@ function SelectChip({ value, onChange, options, placeholder }) {
           </option>
         ))}
       </select>
-      <ChevronDown size={14} color={TOKENS.ochre} style={{ position: "absolute", right: 4, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+      <ChevronDown size={14} color={TOKENS.ochreLight} style={{ position: "absolute", right: 4, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
     </span>
   );
 }
