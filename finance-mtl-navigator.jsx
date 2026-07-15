@@ -268,7 +268,7 @@ const ACTORS = [
     type: { en: "Knowledge & research organization", fr: "Organisme de savoir et de recherche" },
     desc: { en: "Listed by Finance Montréal as a knowledge & research organization active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme organisme de savoir et de recherche actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://esg.uqam.ca/en/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -277,7 +277,7 @@ const ACTORS = [
     type: { en: "Knowledge & research organization", fr: "Organisme de savoir et de recherche" },
     desc: { en: "Listed by Finance Montréal as a knowledge & research organization active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme organisme de savoir et de recherche actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.cpeq.org/fr", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -322,7 +322,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://cbcl.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -331,7 +331,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.cima.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -340,7 +340,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.nordastelo.com/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -457,7 +457,7 @@ const ACTORS = [
     type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
     desc: { en: "Listed by Finance Montréal as a government / public agency active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.publicsafety.gc.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -553,7 +553,7 @@ const ACTORS = [
     type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
     desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://climatmontreal.com/en/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -562,7 +562,7 @@ const ACTORS = [
     type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
     desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the risk understanding stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : compréhension des risques. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.cpeq.org/fr", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -636,7 +636,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.mnp.ca/en", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -714,7 +714,7 @@ const ACTORS = [
     type: { en: "Financial institution", fr: "Institution financière" },
     desc: { en: "Listed by Finance Montréal as a financial institution active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme institution financière actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.fondationtrottier.com/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -768,7 +768,7 @@ const ACTORS = [
     type: { en: "Financial institution", fr: "Institution financière" },
     desc: { en: "Listed by Finance Montréal as a financial institution active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme institution financière actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.nbc.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -804,7 +804,7 @@ const ACTORS = [
     type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
     desc: { en: "Listed by Finance Montréal as a government / public agency active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.canada.ca/en/treasury-board-secretariat/services/innovation/greening-government.html", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -840,7 +840,7 @@ const ACTORS = [
     type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
     desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://snapquebec.org/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -858,7 +858,7 @@ const ACTORS = [
     type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
     desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://inm.qc.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -918,7 +918,7 @@ const ACTORS = [
     type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
     desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.montreal-invivo.com/en/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -942,7 +942,7 @@ const ACTORS = [
     type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
     desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://eequebec.com/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -987,7 +987,7 @@ const ACTORS = [
     type: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
     desc: { en: "Listed by Finance Montréal as a ecosystem organization active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme organisme de l'écosystème actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.cas.ulaval.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1014,7 +1014,7 @@ const ACTORS = [
     type: { en: "Knowledge & research organization", fr: "Organisme de savoir et de recherche" },
     desc: { en: "Listed by Finance Montréal as a knowledge & research organization active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme organisme de savoir et de recherche actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.crim.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1032,7 +1032,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.rousseau-lefebvre.com/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1041,7 +1041,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://nvira.com/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1095,7 +1095,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.inno-centre.com/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1104,7 +1104,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.millani.co/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1113,7 +1113,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://talsom.com/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1140,7 +1140,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.quinnandpartners.com/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1149,7 +1149,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.cae.com/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1158,7 +1158,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://centech.co/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1185,7 +1185,7 @@ const ACTORS = [
     type: { en: "Financial institution", fr: "Institution financière" },
     desc: { en: "Listed by Finance Montréal as a financial institution active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme institution financière actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.quebec.ca/gouvernement/ministere/economie-innovation-energie", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1212,7 +1212,7 @@ const ACTORS = [
     type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
     desc: { en: "Listed by Finance Montréal as a government / public agency active at the adaptation strategy stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : stratégie d’adaptation. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://climateactionnetwork.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1320,7 +1320,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the strategy implementation stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.mallette.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1347,7 +1347,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the strategy implementation stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://vooban.com/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1356,7 +1356,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the strategy implementation stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://coopcarbone.coop/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1446,7 +1446,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the post-implementation analysis stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : analyse post-mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.erm.com/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1554,7 +1554,7 @@ const ACTORS = [
     type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
     desc: { en: "Listed by Finance Montréal as a government / public agency active at the post-implementation analysis stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : analyse post-mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.cmq.gouv.qc.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -1572,7 +1572,7 @@ const ACTORS = [
     type: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
     desc: { en: "Listed by Finance Montréal as a government / public agency active at the post-implementation analysis stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme gouvernement / organisme public actif à l'étape ou aux étapes suivantes du cycle d'adaptation : analyse post-mise en œuvre. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "#", languages: ["fr", "en"],
+    url: "https://www.tresor.gouv.qc.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
 ];
