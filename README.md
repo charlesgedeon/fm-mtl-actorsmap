@@ -59,4 +59,4 @@ new view) — not for updating organizations.
 3. Re-upload `index.html` to the repo.
 
 Never hand-edit `index.html` directly — it's generated, so edits get wiped
-out the next time `build_index.py` runs.# fm-mtl-actorsmap
+out the next time `build_index.py` runs.
