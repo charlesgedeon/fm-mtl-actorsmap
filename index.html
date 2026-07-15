@@ -12,6 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js" crossorigin></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.3/babel.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.5.4/papaparse.min.js" crossorigin></script>
 <style>
   html, body { margin: 0; padding: 0; background: #F5F6FB; }
   #root { min-height: 100vh; }
@@ -107,6 +108,28 @@ function ArrowRight(props) {
     </IconBase>
   );
 }
+
+/* ============================================================
+   LIVE DATA SOURCE (Google Sheet, published to web as CSV)
+   ============================================================
+   To make Finance Montréal's actor list editable without touching
+   code: publish the actors Google Sheet via
+   File → Share → Publish to web → CSV, then paste that URL below.
+   Expected columns (exact header names): Name, URL, Description (EN),
+   Description (FR), Stage, Functional Role. One row per actor per
+   stage — the same actor name can appear on several rows.
+   Stage values must match: Risk Understanding, Value/Opportunity
+   Assessment, Adaptation Strategy, Strategy Implementation,
+   Post-Implementation Analysis.
+   Functional Role values must match: Knowledge & research orgs,
+   Technical & advisory providers, Financial institutions,
+   Government & public agencies, Ecosystem.
+   Leave the string empty to always use the built-in data below.
+   If the sheet can't be reached (offline, URL wrong, sheet
+   unpublished), the app silently falls back to the built-in data
+   so it never breaks.
+   ============================================================ */
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT78MR61LJTZjl0hFg8Rt6gPR51mLlv6NMMCr35NJd6SgXEempeWpdMW3lV9ixI0ZQLY5x3cF42WeCG/pub?gid=0&single=true&output=csv";
 
 /* ============================================================
    DESIGN TOKENS — Finance Montréal official brand palette
@@ -297,7 +320,7 @@ const FUNCTIONS = [
    DATA — ACTORS (seed set, §9)
    ============================================================ */
 
-const ACTORS = [
+let ACTORS = [
   {
     id: "ouranos", name: "Ouranos", role: "knowledge",
     stages: ["risk", "value", "strategy", "post"],
@@ -1706,6 +1729,9 @@ const UI = {
     allStage: (s) => `Toute l'étape — ${s}`,
     allRole: (r) => `Tout le rôle — ${r}`,
     demoNote: "Démonstration — données fictives et partielles à valider par Finance Montréal.",
+    dataLive: "Données en direct chargées depuis Google Sheets.",
+    dataError: "Impossible de charger Google Sheets — affichage des données intégrées.",
+    dataLoading: "Chargement des données en direct…",
     langToggle: "EN",
   },
   en: {
@@ -1734,6 +1760,9 @@ const UI = {
     allStage: (s) => `Whole stage — ${s}`,
     allRole: (r) => `Whole role — ${r}`,
     demoNote: "Demo — seed data is partial and fictionalized pending validation by Finance Montréal.",
+    dataLive: "Live data loaded from Google Sheets.",
+    dataError: "Couldn't load Google Sheets — showing built-in data.",
+    dataLoading: "Loading live data…",
     langToggle: "FR",
   },
 };
@@ -1757,6 +1786,69 @@ const matchesSearch = (actor, lang, q) => {
     tx(actor.type, lang).toLowerCase().includes(needle)
   );
 };
+
+/* ============================================================
+   LIVE SHEET LOADING
+   Fetches SHEET_CSV_URL (a Google Sheet published as CSV), turns
+   its rows into the same shape as the built-in ACTORS array, and
+   swaps ACTORS in place. One row per actor per stage is expected;
+   rows sharing a Name get merged into one actor with multiple
+   stages. Any row with an unrecognized Stage or Functional Role
+   value, or a blank Name, is skipped rather than crashing the load.
+   ============================================================ */
+
+const normalizeLabel = (s) => (s || "").trim().toLowerCase().replace(/\s*\/\s*/g, "/").replace(/\s+/g, " ");
+const STAGE_LABEL_TO_ID = Object.fromEntries(STAGES.map((s) => [normalizeLabel(s.en), s.id]));
+const ROLE_LABEL_TO_ID = Object.fromEntries(ROLES.map((r) => [normalizeLabel(r.en), r.id]));
+const ROLE_TYPE_FALLBACK = {
+  knowledge: { en: "Knowledge & research organization", fr: "Organisme de savoir et de recherche" },
+  advisory: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
+  financial: { en: "Financial institution", fr: "Institution financière" },
+  government: { en: "Government / public agency", fr: "Gouvernement / organisme public" },
+  ecosystem: { en: "Ecosystem organization", fr: "Organisme de l'écosystème" },
+};
+
+function slugifyActorName(name) {
+  return (
+    name
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .toLowerCase()
+      .slice(0, 40) || "actor"
+  );
+}
+
+function transformSheetRowsToActors(rows) {
+  const byName = new Map();
+  for (const row of rows) {
+    const name = (row["Name"] || "").trim();
+    if (!name) continue;
+    const stageId = STAGE_LABEL_TO_ID[normalizeLabel(row["Stage"])];
+    const roleId = ROLE_LABEL_TO_ID[normalizeLabel(row["Functional Role"])];
+    if (!stageId || !roleId) continue; // skip rows with an unrecognized stage/role rather than fail the whole load
+
+    if (!byName.has(name)) {
+      const descEn = (row["Description (EN)"] || "").trim();
+      const descFr = (row["Description (FR)"] || "").trim() || descEn;
+      byName.set(name, {
+        id: slugifyActorName(name),
+        name,
+        role: roleId,
+        stages: [],
+        type: ROLE_TYPE_FALLBACK[roleId],
+        desc: { en: descEn, fr: descFr },
+        url: (row["URL"] || "").trim() || "#",
+        languages: ["fr", "en"],
+        initiatives: [],
+      });
+    }
+    const actor = byName.get(name);
+    if (!actor.stages.includes(stageId)) actor.stages.push(stageId);
+  }
+  return Array.from(byName.values());
+}
 
 /* ============================================================
    SMALL UI PRIMITIVES
@@ -2290,6 +2382,8 @@ function App() {
   const [finderSearch, setFinderSearch] = useState("");
   const [detailActor, setDetailActor] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [dataSource, setDataSource] = useState("builtin"); // "builtin" | "live" | "error"
+  const [, forceRerender] = useState(0);
   const wrapRef = useRef(null);
 
   const ui = UI[lang];
@@ -2308,6 +2402,27 @@ function App() {
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
+
+  useEffect(() => {
+    if (!SHEET_CSV_URL) return; // no sheet configured — built-in data stays in place
+    fetch(SHEET_CSV_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.text();
+      })
+      .then((csvText) => {
+        const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+        const liveActors = transformSheetRowsToActors(parsed.data);
+        if (liveActors.length === 0) throw new Error("Sheet returned no usable rows");
+        ACTORS = liveActors; // swap the module-level data in place
+        setDataSource("live");
+        forceRerender((n) => n + 1); // re-render so every view picks up the new ACTORS
+      })
+      .catch((err) => {
+        console.warn("Finance Montréal navigator: could not load the live Google Sheet, using built-in data.", err);
+        setDataSource("error");
+      });
+  }, []);
 
   return (
     <div
@@ -2398,6 +2513,11 @@ function App() {
         <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10.5, color: TOKENS.moss }}>
           {ui.demoNote}
         </p>
+        {SHEET_CSV_URL && (
+          <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 10.5, color: TOKENS.moss, marginTop: 2 }}>
+            {dataSource === "live" ? ui.dataLive : dataSource === "error" ? ui.dataError : ui.dataLoading}
+          </p>
+        )}
       </footer>
 
       <Drawer
