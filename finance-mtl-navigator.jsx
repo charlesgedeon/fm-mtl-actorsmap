@@ -310,6 +310,8 @@ const UI = {
     dataLive: "Données en direct chargées depuis Google Sheets.",
     dataError: "Impossible de charger Google Sheets — affichage des données intégrées.",
     dataLoading: "Chargement des données en direct…",
+    bannerBuiltin: "⚠ Données d'exemple — aucune feuille Google Sheets n'est configurée. Voir SHEET_CSV_URL dans le code.",
+    bannerError: "⚠ Impossible de joindre la feuille Google Sheets en direct — affichage de données d'exemple, pas des données réelles.",
     langToggle: "EN",
   },
   en: {
@@ -341,6 +343,8 @@ const UI = {
     dataLive: "Live data loaded from Google Sheets.",
     dataError: "Couldn't load Google Sheets — showing built-in data.",
     dataLoading: "Loading live data…",
+    bannerBuiltin: "⚠ Sample data — no Google Sheet is connected yet. See SHEET_CSV_URL in the source.",
+    bannerError: "⚠ Couldn't reach the live Google Sheet — showing sample data, not real content.",
     langToggle: "FR",
   },
 };
@@ -1020,6 +1024,19 @@ export default function App() {
         .fm-select:focus { outline: none; }
         ::selection { background: ${TOKENS.ochreLight}; }
       `}</style>
+
+      {/* DATA SOURCE BANNER — visible whenever this isn't confirmed live data,
+          so a disconnected sheet is impossible to mistake for the real thing */}
+      {dataSource !== "live" && (
+        <div
+          className="px-5 sm:px-8 py-2 text-center"
+          style={{ background: "#FDECEC", borderBottom: "1px solid #F3B9B9" }}
+        >
+          <span style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, fontSize: 12.5, color: "#8A2A2A" }}>
+            {dataSource === "error" ? ui.bannerError : ui.bannerBuiltin}
+          </span>
+        </div>
+      )}
 
       {/* HEADER */}
       <header style={{ borderBottom: `1px solid ${TOKENS.line}`, background: TOKENS.paper }}>
