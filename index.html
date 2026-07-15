@@ -160,87 +160,137 @@ const FUNCTIONS = [
   // RISK
   { stage: "risk", role: "knowledge", label: { en: "Hazard data", fr: "Données sur les aléas" },
     desc: { en: "Provide climate and hazard knowledge and research so SMEs understand current and future climate risks to their operations before making adaptation decisions.",
-            fr: "Fournissent des connaissances et des recherches sur le climat et les aléas afin que les PME comprennent les risques climatiques actuels et futurs pesant sur leurs activités avant de prendre des décisions d'adaptation." } },
+            fr: "Fournissent des connaissances et des recherches sur le climat et les aléas afin que les PME comprennent les risques climatiques actuels et futurs pesant sur leurs activités avant de prendre des décisions d'adaptation." },
+    keywords: { en: ["Climate science", "Hazard data", "Risk analytics", "Economic risk", "Decision support"],
+               fr: ["Science climatique", "Données sur les aléas", "Analytique de risque", "Risque économique", "Aide à la décision"] } },
   { stage: "risk", role: "advisory", label: { en: "Assess vulnerabilities", fr: "Évaluer les vulnérabilités" },
     desc: { en: "Assess an SME's specific vulnerabilities and translate climate hazards into business risk.",
-            fr: "Évaluent les vulnérabilités propres à une PME et traduisent les aléas climatiques en risques d'affaires concrets." } },
+            fr: "Évaluent les vulnérabilités propres à une PME et traduisent les aléas climatiques en risques d'affaires concrets." },
+    keywords: { en: ["Climate vulnerability assessments", "Asset exposure analyses", "Critical asset mapping", "Business interruption assessments", "Supply chain risk analyses", "Physical climate risk reports"],
+               fr: ["Évaluations de vulnérabilité climatique", "Analyses d'exposition des actifs", "Cartographie des actifs critiques", "Évaluations d'interruption d'activités", "Analyses de risque de la chaîne d'approvisionnement", "Rapports sur le risque climatique physique"] } },
   { stage: "risk", role: "financial", label: { en: "Define risk concerns", fr: "Définir les préoccupations de risque" },
     desc: { en: "Identify climate risks that could affect financing, insurability, asset value, repayment capacity, and long-term resilience.",
-            fr: "Repèrent les risques climatiques susceptibles d'affecter le financement, l'assurabilité, la valeur des actifs, la capacité de remboursement et la résilience à long terme." } },
+            fr: "Repèrent les risques climatiques susceptibles d'affecter le financement, l'assurabilité, la valeur des actifs, la capacité de remboursement et la résilience à long terme." },
+    keywords: { en: ["Climate-risk priorities", "Lending risk considerations", "Insurance risk concerns", "Portfolio-risk assessments", "Resilience expectations", "Materiality frameworks"],
+               fr: ["Priorités en matière de risque climatique", "Considérations de risque de crédit", "Préoccupations liées au risque d'assurance", "Évaluations du risque de portefeuille", "Attentes en matière de résilience", "Cadres de matérialité"] } },
   { stage: "risk", role: "government", label: { en: "Public information", fr: "Information publique" },
     desc: { en: "Provide public climate-risk information, hazard maps, datasets, guidance and regulations.",
-            fr: "Fournissent l'information publique sur les risques climatiques, des cartes d'aléas, des jeux de données, des guides et la réglementation." } },
+            fr: "Fournissent l'information publique sur les risques climatiques, des cartes d'aléas, des jeux de données, des guides et la réglementation." },
+    keywords: { en: ["Flood maps", "Climate projections", "Risk datasets", "Adaptation guidance", "Hazard assessments", "Public awareness tools"],
+               fr: ["Cartes des inondations", "Projections climatiques", "Jeux de données sur les risques", "Orientations en matière d'adaptation", "Évaluations des aléas", "Outils de sensibilisation du public"] } },
   { stage: "risk", role: "ecosystem", label: { en: "Awareness", fr: "Sensibilisation" },
     desc: { en: "Raise awareness of climate risks and adaptation opportunities and encourage SMEs to engage with the ecosystem.",
-            fr: "Sensibilisent aux risques climatiques et aux occasions d'adaptation, et encouragent les PME à s'engager dans l'écosystème." } },
+            fr: "Sensibilisent aux risques climatiques et aux occasions d'adaptation, et encouragent les PME à s'engager dans l'écosystème." },
+    keywords: { en: ["System translators", "Awareness campaigns", "Events and workshops", "Climate communications", "Success stories", "Outreach activities", "Entry points into the ecosystem"],
+               fr: ["Traducteurs du système", "Campagnes de sensibilisation", "Événements et ateliers", "Communications climatiques", "Histoires à succès", "Activités de rayonnement", "Portes d'entrée vers l'écosystème"] } },
 
   // VALUE
   { stage: "value", role: "knowledge", label: { en: "Cost-benefit evidence", fr: "Données coûts-bénéfices" },
     desc: { en: "Produce studies and benchmarks that quantify the business case for adaptation, including avoided losses and new market opportunities.",
-            fr: "Produisent des études et des repères qui chiffrent l'argumentaire d'affaires de l'adaptation, incluant les pertes évitées et les nouvelles occasions de marché." } },
+            fr: "Produisent des études et des repères qui chiffrent l'argumentaire d'affaires de l'adaptation, incluant les pertes évitées et les nouvelles occasions de marché." },
+    keywords: { en: ["Case studies", "Adaptation frameworks", "Benchmarking", "Sector-specific guidance", "Economic justification for adaptation"],
+               fr: ["Études de cas", "Cadres d'adaptation", "Analyse comparative", "Orientations sectorielles", "Justification économique de l'adaptation"] } },
   { stage: "value", role: "advisory", label: { en: "Opportunity diagnostics", fr: "Diagnostics d'opportunités" },
     desc: { en: "Run diagnostics and workshops that translate risk findings into a prioritized list of adaptation opportunities and their expected value.",
-            fr: "Réalisent des diagnostics et des ateliers qui traduisent les constats de risque en une liste priorisée d'opportunités d'adaptation et de leur valeur attendue." } },
+            fr: "Réalisent des diagnostics et des ateliers qui traduisent les constats de risque en une liste priorisée d'opportunités d'adaptation et de leur valeur attendue." },
+    keywords: { en: ["Climate adaptation plans", "Resilience roadmaps", "Prioritized adaptation measures", "Capital planning recommendations", "Business continuity strategies", "Adaptation investment pipelines"],
+               fr: ["Plans d'adaptation climatique", "Feuilles de route de résilience", "Mesures d'adaptation priorisées", "Recommandations de planification des immobilisations", "Stratégies de continuité des activités", "Portefeuilles d'investissements en adaptation"] } },
   { stage: "value", role: "financial", label: { en: "Value the investment case", fr: "Évaluer le dossier d'investissement" },
     desc: { en: "Help SMEs frame adaptation spending as investment, weighing cost of inaction against financing terms and expected returns.",
-            fr: "Aident les PME à présenter les dépenses d'adaptation comme un investissement, en pesant le coût de l'inaction face aux conditions de financement et aux rendements attendus." } },
+            fr: "Aident les PME à présenter les dépenses d'adaptation comme un investissement, en pesant le coût de l'inaction face aux conditions de financement et aux rendements attendus." },
+    keywords: { en: ["Financeability criteria", "Investment-readiness guidance", "Funding eligibility requirements", "Risk-reduction expectations", "Project-screening criteria", "Financing pathways"],
+               fr: ["Critères de finançabilité", "Orientations sur la préparation à l'investissement", "Exigences d'admissibilité au financement", "Attentes de réduction du risque", "Critères de présélection de projets", "Voies de financement"] } },
   { stage: "value", role: "government", label: { en: "Incentive signals", fr: "Signaux incitatifs" },
     desc: { en: "Publish programs, grants and tax measures that shift the value calculation toward earlier adaptation action.",
-            fr: "Publient des programmes, subventions et mesures fiscales qui font pencher le calcul de valeur vers une action d'adaptation plus précoce." } },
+            fr: "Publient des programmes, subventions et mesures fiscales qui font pencher le calcul de valeur vers une action d'adaptation plus précoce." },
+    keywords: { en: ["Adaptation frameworks", "Risk-management guidance", "Governance structures", "Planning methodologies", "Resilience standards", "Climate-risk guidelines"],
+               fr: ["Cadres d'adaptation", "Orientations en gestion du risque", "Structures de gouvernance", "Méthodologies de planification", "Normes de résilience", "Lignes directrices sur le risque climatique"] } },
   { stage: "value", role: "ecosystem", label: { en: "Peer benchmarking", fr: "Comparaison entre pairs" },
     desc: { en: "Convene sector peers to share what adaptation has been worth to comparable businesses.",
-            fr: "Réunissent des pairs sectoriels pour partager la valeur que l'adaptation a représentée pour des entreprises comparables." } },
+            fr: "Réunissent des pairs sectoriels pour partager la valeur que l'adaptation a représentée pour des entreprises comparables." },
+    keywords: { en: ["Courses", "Workshops", "Communities of practice", "Professional certifications", "Executive education", "Practical toolkits"],
+               fr: ["Cours", "Ateliers", "Communautés de pratique", "Certifications professionnelles", "Formation exécutive", "Boîtes à outils pratiques"] } },
 
   // STRATEGY
   { stage: "strategy", role: "knowledge", label: { en: "Pathways research", fr: "Recherche sur les trajectoires" },
     desc: { en: "Supply scenario and pathway research SMEs can draw on to shape a defensible, sector-specific adaptation strategy.",
-            fr: "Fournissent des recherches sur les scénarios et les trajectoires que les PME peuvent utiliser pour élaborer une stratégie d'adaptation défendable et propre à leur secteur." } },
+            fr: "Fournissent des recherches sur les scénarios et les trajectoires que les PME peuvent utiliser pour élaborer une stratégie d'adaptation défendable et propre à leur secteur." },
+    keywords: { en: ["Adaptation case studies", "Technical guidance", "Pilot projects", "Cost-benefit data", "Performance evidence", "Sector adaptation research"],
+               fr: ["Études de cas sur l'adaptation", "Orientations techniques", "Projets pilotes", "Données coûts-bénéfices", "Données probantes sur la performance", "Recherche sectorielle sur l'adaptation"] } },
   { stage: "strategy", role: "advisory", label: { en: "Strategy design", fr: "Conception de la stratégie" },
     desc: { en: "Co-design the adaptation strategy and roadmap, sequencing actions against risk exposure and available resources.",
-            fr: "Coconçoivent la stratégie et la feuille de route d'adaptation, en séquençant les actions selon l'exposition au risque et les ressources disponibles." } },
+            fr: "Coconçoivent la stratégie et la feuille de route d'adaptation, en séquençant les actions selon l'exposition au risque et les ressources disponibles." },
+    keywords: { en: ["Solution design and solution selection"],
+               fr: ["Conception et sélection de solutions"] } },
   { stage: "strategy", role: "financial", label: { en: "Structure financing", fr: "Structurer le financement" },
     desc: { en: "Structure the financing mix — loans, credit lines, insurance products — that will support the chosen strategy.",
-            fr: "Structurent le montage financier (prêts, marges de crédit, produits d'assurance) qui appuiera la stratégie retenue." } },
+            fr: "Structurent le montage financier (prêts, marges de crédit, produits d'assurance) qui appuiera la stratégie retenue." },
+    keywords: { en: ["Project assessments", "Investment reviews", "Due diligence", "Risk screening", "Funding decisions", "Project approval recommendations"],
+               fr: ["Évaluations de projets", "Analyses d'investissement", "Vérification diligente", "Présélection du risque", "Décisions de financement", "Recommandations d'approbation de projets"] } },
   { stage: "strategy", role: "government", label: { en: "Policy alignment", fr: "Arrimage réglementaire" },
     desc: { en: "Clarify regulatory obligations and align public programs with the SME's strategic choices.",
-            fr: "Clarifient les obligations réglementaires et arriment les programmes publics aux choix stratégiques de la PME." } },
+            fr: "Clarifient les obligations réglementaires et arriment les programmes publics aux choix stratégiques de la PME." },
+    keywords: { en: ["Adaptation programs", "Technical assistance", "Sector-specific tools", "Training resources", "Pilot projects", "Resilience planning supports"],
+               fr: ["Programmes d'adaptation", "Assistance technique", "Outils sectoriels", "Ressources de formation", "Projets pilotes", "Soutiens à la planification de la résilience"] } },
   { stage: "strategy", role: "ecosystem", label: { en: "Convening & partnerships", fr: "Maillage et partenariats" },
     desc: { en: "Broker introductions and partnerships — supply chain, sector associations — that strengthen the strategy's feasibility.",
-            fr: "Facilitent des mises en relation et des partenariats (chaîne d'approvisionnement, associations sectorielles) qui renforcent la faisabilité de la stratégie." } },
+            fr: "Facilitent des mises en relation et des partenariats (chaîne d'approvisionnement, associations sectorielles) qui renforcent la faisabilité de la stratégie." },
+    keywords: { en: ["Networking events", "Working groups", "Sector roundtables", "Peer exchanges", "Partnerships", "Ecosystem connections"],
+               fr: ["Événements de réseautage", "Groupes de travail", "Tables rondes sectorielles", "Échanges entre pairs", "Partenariats", "Connexions de l'écosystème"] } },
 
   // IMPLEMENTATION
   { stage: "implementation", role: "knowledge", label: { en: "Technical standards", fr: "Normes techniques" },
     desc: { en: "Maintain technical standards, guides and case studies that inform how adaptation measures are actually built or deployed.",
-            fr: "Maintiennent des normes techniques, guides et études de cas qui éclairent la mise en œuvre concrète des mesures d'adaptation." } },
+            fr: "Maintiennent des normes techniques, guides et études de cas qui éclairent la mise en œuvre concrète des mesures d'adaptation." },
+    keywords: { en: ["Risk indicators", "Resilience metrics", "Climate risk measurement frameworks", "Scenario analysis", "Quantification of avoided losses", "Adaptation performance measurement"],
+               fr: ["Indicateurs de risque", "Indicateurs de résilience", "Cadres de mesure du risque climatique", "Analyse de scénarios", "Quantification des pertes évitées", "Mesure de la performance de l'adaptation"] } },
   { stage: "implementation", role: "advisory", label: { en: "Project delivery", fr: "Réalisation de projet" },
     desc: { en: "Deliver the engineering, design or operational work needed to execute adaptation measures on the ground.",
-            fr: "Réalisent les travaux d'ingénierie, de conception ou d'exploitation nécessaires à l'exécution des mesures d'adaptation sur le terrain." } },
+            fr: "Réalisent les travaux d'ingénierie, de conception ou d'exploitation nécessaires à l'exécution des mesures d'adaptation sur le terrain." },
+    keywords: { en: ["Quantifying avoided losses", "Calculating ROI", "Building a financial case", "Preparing funding applications", "Preparing lender-facing documentation", "Evaluating financing structures"],
+               fr: ["Quantification des pertes évitées", "Calcul du retour sur investissement", "Élaboration d'un dossier financier", "Préparation de demandes de financement", "Préparation de documentation destinée aux prêteurs", "Évaluation des structures de financement"] } },
   { stage: "implementation", role: "financial", label: { en: "Disburse capital", fr: "Décaisser le capital" },
     desc: { en: "Disburse loans, grants or insurance proceeds and monitor use of funds through the implementation phase.",
-            fr: "Décaissent les prêts, subventions ou indemnités d'assurance et suivent l'utilisation des fonds pendant la mise en œuvre." } },
+            fr: "Décaissent les prêts, subventions ou indemnités d'assurance et suivent l'utilisation des fonds pendant la mise en œuvre." },
+    keywords: { en: ["Loans", "Equity investments", "Loan guarantees", "Co-financing", "Growth capital", "Project financing"],
+               fr: ["Prêts", "Investissements en capital", "Garanties de prêt", "Cofinancement", "Capital de croissance", "Financement de projets"] } },
   { stage: "implementation", role: "government", label: { en: "Permits & compliance", fr: "Permis et conformité" },
     desc: { en: "Administer permits, inspections and compliance requirements tied to the adaptation measures being implemented.",
-            fr: "Administrent les permis, inspections et exigences de conformité liés aux mesures d'adaptation mises en œuvre." } },
+            fr: "Administrent les permis, inspections et exigences de conformité liés aux mesures d'adaptation mises en œuvre." },
+    keywords: { en: ["Grants", "Subsidies", "Loan guarantees", "Tax incentives", "Cost-sharing programs", "Funding support"],
+               fr: ["Subventions", "Aides financières", "Garanties de prêt", "Incitatifs fiscaux", "Programmes de partage des coûts", "Soutien au financement"] } },
   { stage: "implementation", role: "ecosystem", label: { en: "Contractor & supplier network", fr: "Réseau d'entrepreneurs et de fournisseurs" },
     desc: { en: "Connect SMEs to vetted contractors, suppliers and installers who can execute the work.",
-            fr: "Mettent les PME en contact avec des entrepreneurs, fournisseurs et installateurs qualifiés pour exécuter les travaux." } },
+            fr: "Mettent les PME en contact avec des entrepreneurs, fournisseurs et installateurs qualifiés pour exécuter les travaux." },
+    keywords: { en: ["Referrals", "Matchmaking", "Ecosystem navigation", "Project partnerships", "Funding introductions", "Implementation support"],
+               fr: ["Références", "Maillage", "Navigation dans l'écosystème", "Partenariats de projet", "Mises en relation pour le financement", "Soutien à la mise en œuvre"] } },
 
   // POST
   { stage: "post", role: "knowledge", label: { en: "Outcome research", fr: "Recherche sur les résultats" },
     desc: { en: "Study post-implementation outcomes to refine what adaptation measures actually deliver over time.",
-            fr: "Étudient les résultats après la mise en œuvre pour préciser ce que les mesures d'adaptation livrent réellement dans le temps." } },
+            fr: "Étudient les résultats après la mise en œuvre pour préciser ce que les mesures d'adaptation livrent réellement dans le temps." },
+    keywords: { en: ["avoided losses", "resilience gains", "economic outcomes", "adaptation effectiveness", "long-term climate risk reduction"],
+               fr: ["pertes évitées", "gains de résilience", "résultats économiques", "efficacité de l'adaptation", "réduction du risque climatique à long terme"] } },
   { stage: "post", role: "advisory", label: { en: "Performance review", fr: "Bilan de performance" },
     desc: { en: "Audit and benchmark completed measures against the original risk and value case.",
-            fr: "Auditent et comparent les mesures réalisées à l'argumentaire initial de risque et de valeur." } },
+            fr: "Auditent et comparent les mesures réalisées à l'argumentaire initial de risque et de valeur." },
+    keywords: { en: ["Performance measurement", "Verification", "Auditing", "Monitoring", "Continuous improvement", "Lessons learned"],
+               fr: ["Mesure de la performance", "Vérification", "Audit", "Suivi", "Amélioration continue", "Leçons apprises"] } },
   { stage: "post", role: "financial", label: { en: "Reassess risk pricing", fr: "Réévaluer la tarification du risque" },
     desc: { en: "Reassess financing terms, insurance pricing and asset value in light of the adaptation measures now in place.",
-            fr: "Réévaluent les conditions de financement, la tarification de l'assurance et la valeur des actifs à la lumière des mesures d'adaptation désormais en place." } },
+            fr: "Réévaluent les conditions de financement, la tarification de l'assurance et la valeur des actifs à la lumière des mesures d'adaptation désormais en place." },
+    keywords: { en: ["Claims analysis", "Portfolio-risk monitoring", "Risk-reduction assessments", "Infrastructure performance reviews", "Resilience indicators", "Long-term impact evaluations"],
+               fr: ["Analyse des réclamations", "Suivi du risque de portefeuille", "Évaluations de la réduction du risque", "Bilans de performance des infrastructures", "Indicateurs de résilience", "Évaluations d'impact à long terme"] } },
   { stage: "post", role: "government", label: { en: "Reporting & recognition", fr: "Reddition de comptes et reconnaissance" },
     desc: { en: "Collect reporting for public programs and recognize completed adaptation action through certification or disclosure.",
-            fr: "Collectent la reddition de comptes pour les programmes publics et reconnaissent l'action d'adaptation réalisée par certification ou divulgation." } },
+            fr: "Collectent la reddition de comptes pour les programmes publics et reconnaissent l'action d'adaptation réalisée par certification ou divulgation." },
+    keywords: { en: ["Performance reports", "Outcome monitoring", "Program evaluations", "Public datasets", "Accountability frameworks", "Lessons learned"],
+               fr: ["Rapports de performance", "Suivi des résultats", "Évaluations de programmes", "Jeux de données publics", "Cadres de reddition de comptes", "Leçons apprises"] } },
   { stage: "post", role: "ecosystem", label: { en: "Share lessons", fr: "Partager les leçons" },
     desc: { en: "Capture and circulate lessons learned so other SMEs in the ecosystem can adapt faster.",
-            fr: "Recueillent et diffusent les leçons apprises pour que d'autres PME de l'écosystème puissent s'adapter plus rapidement." } },
+            fr: "Recueillent et diffusent les leçons apprises pour que d'autres PME de l'écosystème puissent s'adapter plus rapidement." },
+    keywords: { en: ["Case studies", "Communities of practice", "Peer learning", "Knowledge-sharing events", "Adaptation stories", "Lessons learned"],
+               fr: ["Études de cas", "Communautés de pratique", "Apprentissage entre pairs", "Événements de partage de connaissances", "Récits d'adaptation", "Leçons apprises"] } },
 ];
 
 /* ============================================================
@@ -334,7 +384,7 @@ const ACTORS = [
     type: { en: "Global engineering & environmental consultancy", fr: "Firme mondiale de génie-conseil et d'environnement" },
     desc: { en: "Global engineering consultancy that assesses climate vulnerabilities and designs resilience measures for infrastructure and operations.",
             fr: "Firme mondiale de génie-conseil qui évalue les vulnérabilités climatiques et conçoit des mesures de résilience pour les infrastructures et les opérations." },
-    url: "https://www.wsp.com/en-ca/services/climate-change", languages: ["fr", "en"],
+    url: "https://www.wsp.com/en-ca/hubs/climate-change-resilience-and-sustainability", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -415,7 +465,7 @@ const ACTORS = [
     type: { en: "Financial cooperative group & insurer", fr: "Groupe financier coopératif et assureur" },
     desc: { en: "Financial cooperative group and insurer offering financing, insurance and risk-related products relevant to adaptation.",
             fr: "Groupe financier coopératif et assureur offrant des produits de financement, d'assurance et de gestion du risque pertinents à l'adaptation." },
-    url: "https://www.desjardins.com/", languages: ["fr", "en"],
+    url: "https://www.desjardins.com/qc/en/savings-investment/responsible-investment.html", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -528,7 +578,12 @@ const ACTORS = [
       {
         name: "Sustainable Finance and Climate Action Education Network",
         desc: { en: "Masterclasses and an SME community of practice on climate risk, ESG and sustainable finance.", fr: "Classes de maître et communauté de pratique pour PME sur le risque climatique, les enjeux ESG et la finance durable." },
-        url: "https://www.finance-montreal.com/en/education-network-for-quebec-smes",
+        url: "https://www.finance-montreal.com/en/advanced-training-path-sustainable-finance",
+      },
+      {
+        name: "Training and Mentorships in Sustainable Finance",
+        desc: { en: "Mentorship-based training track supporting practitioners as they apply sustainable-finance skills after implementation.", fr: "Parcours de formation avec mentorat qui appuie les praticiens dans l'application de compétences en finance durable après la mise en œuvre." },
+        url: "https://www.finance-montreal.com/en/training-and-mentorships-in-sustainable-finance",
       },
     ],
   },
@@ -632,7 +687,7 @@ const ACTORS = [
     type: { en: "Non-profit think tank", fr: "Think tank à but non lucratif" },
     desc: { en: "Offers a free 10-minute climate-maturity diagnostic (\"Baro-éclair\") that benchmarks a company against peers and generates a transition index and workshop recommendations.",
             fr: "Offre un diagnostic gratuit de maturité climatique de 10 minutes (le « Baro-éclair ») qui compare l'entreprise à ses pairs et génère un indice de transition ainsi que des recommandations d'ateliers." },
-    url: "https://www.qnp.ca/en/", languages: ["fr", "en"],
+    url: "https://www.qnp.ca/", languages: ["fr", "en"],
     initiatives: [
       {
         name: "Baro-éclair / Flash Barometer",
@@ -652,7 +707,7 @@ const ACTORS = [
     type: { en: "Technical & advisory provider", fr: "Fournisseur technique et conseil" },
     desc: { en: "Listed by Finance Montréal as a technical & advisory provider active at the value assessment stage(s) of the adaptation cycle. (TODO: confirm description and link with FM.)",
             fr: "Répertorié par Finance Montréal comme fournisseur technique et conseil actif à l'étape ou aux étapes suivantes du cycle d'adaptation : évaluation de la valeur. (À COMPLÉTER : description et lien à confirmer avec FM.)" },
-    url: "https://ellio.com/en/", languages: ["fr", "en"],
+    url: "https://en.ellio.ca/", languages: ["fr", "en"],
     initiatives: [],
   },
   {
@@ -946,7 +1001,7 @@ const ACTORS = [
     type: { en: "Montréal SME support network", fr: "Réseau de soutien aux PME montréalaises" },
     desc: { en: "Montréal's SME support network, offering sustainable-practices guidance and Synergie Montréal's circular-economy matching service.",
             fr: "Réseau de soutien aux PME montréalaises, offrant des conseils en pratiques durables et le service de maillage en économie circulaire Synergie Montréal." },
-    url: "https://pmemtl.com/en", languages: ["fr", "en"],
+    url: "https://pmemtl.com/", languages: ["fr", "en"],
     initiatives: [
       {
         name: "Synergie Montréal",
@@ -1918,6 +1973,13 @@ function Drawer({ selection, lang, ui, search, setSearch, onOpenActor, onClose }
                   {subtitle}
                 </p>
               )}
+              {fn?.keywords && (
+                <div className="flex flex-wrap gap-1.5 mt-2.5">
+                  {tx(fn.keywords, lang).map((kw) => (
+                    <Tag key={kw} tone="ochre">{kw}</Tag>
+                  ))}
+                </div>
+              )}
             </div>
             <button onClick={onClose} aria-label={ui.close} style={{ color: TOKENS.slate }}>
               <X size={20} />
@@ -2191,6 +2253,13 @@ function GuidedFinder({ lang, ui, search, setSearch, onOpenActor }) {
             <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: 13, color: TOKENS.slate, marginTop: 8, lineHeight: 1.55 }}>
               {tx(g.fn?.desc, lang)}
             </p>
+            {g.fn?.keywords && (
+              <div className="flex flex-wrap gap-1.5 mt-2.5">
+                {tx(g.fn.keywords, lang).map((kw) => (
+                  <Tag key={kw} tone="ochre">{kw}</Tag>
+                ))}
+              </div>
+            )}
             {g.actors.length > 0 ? (
               <div className="grid sm:grid-cols-2 gap-3 mt-3">
                 {g.actors.map((a) => (
